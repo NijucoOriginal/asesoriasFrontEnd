@@ -1,0 +1,56 @@
+<main class="politica-container">
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1>{{ t.politicaDatos.titulo }}</h1>
+      <p>{{ t.politicaDatos.subtitulo }}</p>
+    </div>
+  </section>
+
+  <section class="politica-content">
+    <h2>{{ t.politicaDatos.titulos.introduccion }}</h2>
+    <p>{{ t.politicaDatos.introduccion }}</p>
+
+    <h2>{{ t.politicaDatos.titulos.alcance }}</h2>
+    <p>{{ t.politicaDatos.alcance }}</p>
+
+    <h2>{{ t.politicaDatos.titulos.definiciones }}</h2>
+    <ul>
+      <li *ngFor="let def of t.politicaDatos.definiciones">
+        <strong>{{ def.termino }}</strong> {{ def.descripcion }}
+      </li>
+    </ul>
+
+    <h2>{{ t.politicaDatos.titulos.principios }}</h2>
+    <p>{{ t.politicaDatos.principios }}</p>
+
+    <h2>{{ t.politicaDatos.titulos.finalidades }}</h2>
+    <p>{{ t.politicaDatos.finalidades }}</p>
+
+    <h2>{{ t.politicaDatos.titulos.derechos }}</h2>
+    <p>{{ t.politicaDatos.derechos }}</p>
+
+    <h2>{{ t.politicaDatos.titulos.procedimiento }}</h2>
+    <p>{{ t.politicaDatos.procedimiento }}</p>
+
+    <h2>{{ t.politicaDatos.titulos.seguridad }}</h2>
+    <p>{{ t.politicaDatos.seguridad }}</p>
+
+    <h2>{{ t.politicaDatos.titulos.transferencia }}</h2>
+    <p>{{ t.politicaDatos.transferencia }}</p>
+
+    <h2>{{ t.politicaDatos.titulos.vigencia }}</h2>
+    <p>{{ t.politicaDatos.vigencia }}</p>
+
+    <div class="firma">
+      <p>{{ t.politicaDatos.ultimaActualizacion }}</p>
+      <p>{{ t.politicaDatos.subtitulo }}</p>
+      <p>{{ t.politicaDatos.lema }}</p>
+    </div>
+
+    <div class="volver-container">
+      <button class="btn-volver" (click)="redirigirAlInicioMetodo()">
+        <i class="fa-solid fa-arrow-left"></i> {{ t.politicaDatos.volver }}
+      </button>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,68 @@
+<nav class="navbar navbar-expand-lg navbar-light sticky-top">
+  <div class="container">
+    <a class="navbar-brand">EDÉN</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavCliente" aria-controls="navbarNavCliente" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavCliente">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link disabled" aria-disabled="true" tabindex="-1">CONTRATAR ASESORÍA</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" aria-disabled="true" tabindex="-1">OFRECER ASESORÍA</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" (click)="redireccionamiento.redirigirAContactenos()">CONTÁCTENOS</a>
+        </li>
+      </ul>
+      <div class="d-flex flex-column flex-lg-row mt-3 mt-lg-0">
+        <app-user-menu [userName]="userName" (logout)="logout()"></app-user-menu>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<section class="container mb-5">
+  <div class="hero-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6">
+          <h1 class="display-4 fw-bold mb-4">Bienvenido a EDÉN</h1>
+          <p class="lead mb-4">Tenemos tutores para cada una de las materias de nuestros pregrados.</p>
+          <button class="btn btn-primary btn-lg" (click)="redireccionamiento.redirigirAContactenos()">Ver tutores disponibles</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container mb-5">
+  <h2 class="section-title">Tutores destacados</h2>
+  <div class="row">
+    <div class="col-12 col-md-6 col-lg-4 mb-4" *ngFor="let tutor of tutoresDestacados">
+      <div class="card h-100">
+        <div class="text-center pt-4">
+          <img [src]="tutor.foto" [alt]="'Foto de ' + tutor.nombreCompleto"
+               class="rounded-circle tutor-foto" width="120" height="120">
+        </div>
+        <div class="card-body text-center d-flex flex-column">
+          <h5 class="card-title">{{ tutor.nombreCompleto }}</h5>
+          <p class="text-muted mb-3">{{ tutor.carrera }}</p>
+
+          <div class="mb-3">
+            <span class="badge rounded-pill tutor-materia me-1 mb-1" *ngFor="let materia of tutor.materias">
+              {{ materia }}
+            </span>
+          </div>
+
+          <p class="fw-bold mt-auto mb-0">
+            <i class="bi bi-clock"></i> {{ tutor.horasTutoria }} horas de tutoría
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<app-chatbot></app-chatbot>

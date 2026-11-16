@@ -1,0 +1,187 @@
+<div class="perfil-page-wrapper">
+  <button class="btn-volver" (click)="volver()">
+    <i class="fa-solid fa-arrow-left"></i> {{ t.perfil.volverInicio }}
+  </button>
+
+  <main class="container" [formGroup]="perfilForm">
+    <section class="perfil">
+
+      <div class="perfil-header">
+        <div class="avatar-wrapper">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
+            alt="Foto de perfil"
+            class="avatar"
+          >
+          <span class="avatar-rol-badge">USUARIO</span>
+        </div>
+
+        <div class="perfil-info">
+          <h1 *ngIf="!editando">{{ nombre }} {{ apellido }}</h1>
+          <p class="perfil-email-sub" *ngIf="!editando">
+            <i class="fa-solid fa-envelope"></i> {{ email }}
+          </p>
+          <div *ngIf="editando" class="nombre-apellido-editar">
+            <input type="text" class="campo-editar" [placeholder]="t.perfil.placeholderNombre" formControlName="nombreTemporal">
+            <input type="text" class="campo-editar" [placeholder]="t.perfil.placeholderApellido" formControlName="apellidoTemporal">
+          </div>
+        </div>
+      </div>
+
+      <div class="perfil-detalles">
+        <div class="detalles-titulo-row">
+          <h2>{{ t.perfil.infoPersonal }}</h2>
+          <div *ngIf="!editando">
+            <button class="btn-verde" (click)="activarEdicion()">
+              <i class="fa-solid fa-pen"></i> {{ t.perfil.editarInfo }}
+            </button>
+          </div>
+          <div *ngIf="editando" class="botones-edicion">
+            <button class="btn-verde" (click)="guardarCambios()">
+              <i class="fa-solid fa-check"></i> Guardar
+            </button>
+            <button class="btn-rojo" (click)="cancelarEdicion()">
+              <i class="fa-solid fa-xmark"></i> Cancelar
+            </button>
+          </div>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-icon"><i class="fa-solid fa-envelope"></i></div>
+            <div class="info-card-content">
+              <strong>{{ t.perfil.correo }}</strong>
+              <p>{{ email }}</p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon"><i class="fa-solid fa-phone"></i></div>
+            <div class="info-card-content">
+              <strong>{{ t.perfil.telefono }}</strong>
+              <p *ngIf="!editando">{{ telefono }}</p>
+              <input
+                *ngIf="editando"
+                type="tel"
+                class="campo-editar"
+                [placeholder]="t.perfil.placeholderTelefono"
+                formControlName="telefonoTemporal"
+                (keypress)="soloNumeros($event)">
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon"><i class="fa-solid fa-id-card"></i></div>
+            <div class="info-card-content">
+              <strong>{{ t.perfil.documentoIdentidad }}</strong>
+              <p>{{ documentoIdentidad }}</p>
+              <small *ngIf="editando" class="campo-bloqueado">
+                <i class="fa-solid fa-lock"></i> No puede modificarse
+              </small>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="info-card-content">
+              <strong>{{ t.perfil.tipoCuenta }}</strong>
+              <p>{{ rol }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="overlay" *ngIf="mostrarConfirmacion">
+          <div class="ventana-confirmacion">
+            <p>{{ t.perfil.confirmarDesvinculacion }}</p>
+            <div class="botones-confirmacion">
+              <button class="btn-verde" (click)="confirmarDesvinculacion()">
+                <i class="fa-solid fa-check"></i>
+              </button>
+              <button class="btn-rojo" (click)="cancelarDesvinculacion()">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="perfil-propiedades">
+        <h2>Mis tutorías</h2>
+
+        <div class="row g-4">
+          <!-- Columna 1: tutorías tomadas -->
+          <div class="col-12 col-md-6">
+            <div class="tutorias-columna">
+              <div class="tutorias-columna-header">
+                <h3><i class="fa-solid fa-user-graduate"></i> Tutorías tomadas</h3>
+                <span class="tutorias-total">{{ totalHorasTomadas }} h</span>
+              </div>
+
+              <div *ngIf="tutoriasTomadas.length === 0" class="no-propiedades">
+                <p>Aún no has tomado tutorías</p>
+              </div>
+
+              <ul class="lista-tutorias" *ngIf="tutoriasTomadas.length > 0">
+                <li class="item-tutoria" *ngFor="let t of tutoriasTomadas">
+                  <div class="item-tutoria-info">
+                    <strong>{{ t.materia }}</strong>
+                    <span class="item-tutoria-sub">Tutor: {{ t.tutor }}</span>
+                    <span class="item-tutoria-sub"><i class="fa-regular fa-calendar"></i> {{ t.fecha }}</span>
+                  </div>
+                  <span class="badge-horas">{{ t.horas }} h</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Columna 2: tutorías dadas -->
+          <div class="col-12 col-md-6">
+            <div class="tutorias-columna">
+              <div class="tutorias-columna-header">
+                <h3><i class="fa-solid fa-chalkboard-user"></i> Tutorías dadas</h3>
+                <span class="tutorias-total">{{ totalHorasDadas }} h</span>
+              </div>
+
+              <div *ngIf="tutoriasDadas.length === 0" class="no-propiedades">
+                <p>Aún no has dado tutorías</p>
+              </div>
+
+              <ul class="lista-tutorias" *ngIf="tutoriasDadas.length > 0">
+                <li class="item-tutoria" *ngFor="let t of tutoriasDadas">
+                  <div class="item-tutoria-info">
+                    <strong>{{ t.materia }}</strong>
+                    <span class="item-tutoria-sub">Estudiante: {{ t.estudiante }}</span>
+                    <span class="item-tutoria-sub"><i class="fa-regular fa-calendar"></i> {{ t.fecha }}</span>
+                  </div>
+                  <span class="badge-horas">{{ t.horas }} h</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</div>
+
+<!-- Detalle inmueble como componente -->
+<app-detalle-inmueble
+  *ngIf="mostrarModalDetalle && detalleInmueble"
+  [inmueble]="detalleInmueble!"
+  (cerrar)="cerrarModalDetalles()">
+</app-detalle-inmueble>
+
+<div class="overlay" *ngIf="mostrarConfirmacionEliminar">
+  <div class="ventana-confirmacion">
+    <p>¿Seguro que deseas eliminar este inmueble?</p>
+    <div class="botones-confirmacion">
+      <button class="btn-verde" (click)="confirmarEliminar()">
+        <i class="fa-solid fa-check"></i>
+      </button>
+      <button class="btn-rojo" (click)="cancelarEliminar()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+</div>

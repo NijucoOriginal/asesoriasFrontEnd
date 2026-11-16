@@ -1,0 +1,269 @@
+:root {
+  --primary-light: #c7fae9;
+  --primary: #10bb82;
+  --primary-dark: #0daa75;
+  --white: #ffffff;
+}
+
+/* Centrado real en toda la pantalla */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+}
+
+/* Contenedor que ocupa toda la pantalla */
+.activation-container {
+  background-color: var(--white);
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+
+  width: 92%;
+  max-width: 560px;   /* 🔥 Más grande */
+  padding: 40px;
+
+  /* 🔥 CENTRADO PERFECTO */
+  margin: 40px auto;
+}
+
+/* ---------- HEADER ---------- */
+
+.brand-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.brand-logo {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 3rem;   /* Más grande */
+  margin-bottom: 8px;
+}
+
+.brand-subtitle {
+  color: #6c757d;
+  font-size: 1.2rem;
+}
+
+/* ---------- BOTONES ---------- */
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  border-radius: 30px;
+  padding: 14px 25px;
+  font-weight: 600;
+  width: 100%;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+/* ---------- INPUTS DE CÓDIGO ---------- */
+
+.code-inputs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  gap: 10px;
+}
+
+.code-input {
+  width: 60px;   /* 🔥 Más grandes */
+  height: 60px;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 2px solid #ddd;
+  transition: all 0.3s;
+}
+
+.code-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.25rem rgba(16, 187, 130, 0.25);
+}
+
+/* ---------- MENSAJES ---------- */
+
+.success-message {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  padding: 16px;
+  border-radius: 10px;
+  margin-top: 20px;
+  display: none;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 16px;
+  border-radius: 10px;
+  margin-top: 20px;
+  display: none;
+}
+
+/* ---------- INSTRUCCIONES ---------- */
+
+.instructions {
+  background-color: #f8f9fa;
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  font-size: 0.95rem;
+}
+
+.instructions ul {
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+
+/* ---------- REENVÍO ---------- */
+
+.resend-link {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.resend-link a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.resend-link a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Tablets ===== */
+@media (max-width: 768px) {
+
+  .activation-container {
+    padding: 30px 20px;
+  }
+
+  .brand-logo {
+    font-size: 2.4rem;
+  }
+
+  .code-input {
+    width: 52px;
+    height: 52px;
+    font-size: 1.5rem;
+  }
+}
+
+/* ===== Móviles ===== */
+@media (max-width: 480px) {
+
+  .activation-container {
+    width: 95%;
+    padding: 25px 15px;
+  }
+
+  .brand-logo {
+    font-size: 2rem;
+  }
+
+  .brand-subtitle {
+    font-size: 1rem;
+  }
+
+  .code-inputs {
+    gap: 6px;
+  }
+
+  .code-input {
+    width: 42px;
+    height: 42px;
+    font-size: 1.2rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+  }
+}
+
+/*Modo oscuro*/
+:host-context(body.dark-mode) .activation-container {
+  background-color: #16213e !important;
+  color: #e0e0e0 !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
+  border: none !important;
+}
+
+:host-context(body.dark-mode) .brand-logo,
+:host-context(body.dark-mode) h2 {
+  color: #10bb82 !important;
+}
+
+:host-context(body.dark-mode) .brand-subtitle,
+:host-context(body.dark-mode) .text-muted,
+:host-context(body.dark-mode) p,
+:host-context(body.dark-mode) .instructions li,
+:host-context(body.dark-mode) .resend-link {
+  color: #a0a0a0 !important;
+}
+
+:host-context(body.dark-mode) .instructions {
+  background-color: #1a1a2e !important;
+  border: 1px solid #0f3460 !important;
+  color: #a0a0a0 !important;
+}
+
+:host-context(body.dark-mode) .instructions strong {
+  color: #10bb82;
+}
+
+:host-context(body.dark-mode) .code-input {
+  background-color: #1a1a2e !important;
+  border: 2px solid #0f3460 !important;
+  color: #ffffff !important;
+}
+
+:host-context(body.dark-mode) .code-input:focus {
+  border-color: #10bb82 !important;
+  box-shadow: 0 0 0 0.25rem rgba(16, 187, 130, 0.25) !important;
+}
+
+:host-context(body.dark-mode) .btn-primary {
+  background-color: #10bb82 !important;
+  border-color: #10bb82 !important;
+  color: #1a1a2e !important;
+}
+
+:host-context(body.dark-mode) .btn-outline-secondary {
+  background-color: #0f3460 !important;
+  color: #e0e0e0 !important;
+  border: none !important;
+}
+
+:host-context(body.dark-mode) .resend-link a {
+  color: #10bb82 !important;
+}
+
+:host-context(body.dark-mode) .success-message {
+  background-color: rgba(16, 187, 130, 0.15) !important;
+  color: #10bb82 !important;
+  border: 1px solid #10bb82;
+}
+
+:host-context(body.dark-mode) .error-message {
+  background-color: rgba(229, 57, 53, 0.15) !important;
+  color: #ff6b6b !important;
+  border: 1px solid #e53935;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .code-input { width: 52px; height: 52px; font-size: 1.5rem; }
+}
+@media (max-width: 480px) {
+  .code-input { width: 42px; height: 42px; font-size: 1.2rem; }
+}

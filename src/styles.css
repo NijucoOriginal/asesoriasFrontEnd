@@ -1,0 +1,682 @@
+:root {
+  --primary-light: #c7fae9;
+  --primary: #10bb82;
+  --white: #ffffff;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar {
+  background-color: var(--white);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 1.8rem;
+}
+
+.nav-link {
+  color: #333;
+  font-weight: 500;
+  margin: 0 10px;
+  transition: color 0.3s;
+}
+
+.nav-link:hover {
+  color: var(--primary);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  border-radius: 30px;
+  padding: 10px 25px;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: #0daa75;
+  border-color: #0daa75;
+}
+
+.btn-outline-primary {
+  color: var(--primary);
+  border-color: var(--primary);
+  border-radius: 30px;
+  padding: 10px 25px;
+  font-weight: 600;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+.hero-section {
+  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://res.cloudinary.com/dub5ygpln/image/upload/v1792980294/images_lw3qgc.jpg');
+  background-size: cover;
+  background-position: center;
+  height: 500px;
+  display: flex;
+  align-items: center;
+  color: white;
+  border-radius: 15px;
+  margin-top: 20px;
+}
+
+.search-box {
+  background-color: var(--white);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.form-control, .form-select {
+  border-radius: 30px;
+  padding: 12px 20px;
+  border: 1px solid #ddd;
+}
+
+.property-card {
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  transition: transform 0.3s;
+  margin-bottom: 25px;
+}
+
+.property-card:hover {
+  transform: translateY(-5px);
+}
+
+.property-card img {
+  height: 200px;
+  object-fit: cover;
+}
+
+.property-price {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.property-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: var(--primary);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 30px;
+  font-weight: 600;
+}
+
+.section-title {
+  position: relative;
+  margin-bottom: 40px;
+  font-weight: 700;
+}
+
+.section-title:after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 3px;
+  background-color: var(--primary);
+  margin-top: 15px;
+}
+
+.bg-light-primary {
+  background-color: var(--primary-light);
+}
+
+footer {
+  background-color: #333;
+  color: white;
+  padding: 60px 0 30px;
+}
+
+.social-icon {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  background-color: var(--primary);
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 40px;
+  margin-right: 10px;
+  transition: background-color 0.3s;
+}
+
+.social-icon:hover {
+  background-color: #0daa75;
+  color: white;
+}
+
+/* Mapa Styles */
+#mapSection {
+  padding: 60px 0;
+}
+
+#propertyMap {
+  height: 500px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  margin-top: 20px;
+}
+
+.map-search-container {
+  background-color: var(--white);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.map-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.map-filter-btn {
+  background-color: var(--primary-light);
+  border: none;
+  border-radius: 30px;
+  padding: 8px 20px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.map-filter-btn.active, .map-filter-btn:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+/* Estilos para los marcadores del mapa */
+.custom-marker {
+  background-color: var(--primary);
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.custom-marker i {
+  transform: rotate(45deg);
+  color: white;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+}
+
+.map-popup-content img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.map-popup-content .price {
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+
+/* 1️⃣ Fondo general gris oscuro suave, textos blancos */
+body.dark-mode {
+  background-color: #1a1a2e !important;
+  color: #e0e0e0 !important;
+}
+
+/* Fondo específico para páginas de login y registro */
+body.dark-mode app-login,
+body.dark-mode app-registro {
+  background-color: #1a1a2e !important;
+  min-height: 100vh;
+  display: block;
+}
+
+body.dark-mode app-login body,
+body.dark-mode app-registro body {
+  background-color: #1a1a2e !important;
+}
+
+/* 2️⃣ Elementos de fondo blanco o gris -> gris oscuro */
+body.dark-mode .navbar,
+body.dark-mode footer,
+body.dark-mode .search-box,
+body.dark-mode .property-card,
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode .map-search-container,
+body.dark-mode .accessibility-window,
+body.dark-mode .bg-light-primary,
+body.dark-mode #router-outlet,
+body.dark-mode .card,
+body.dark-mode .modal-content,
+body.dark-mode .dropdown-menu {
+  background-color: #16213e !important;
+  color: #e0e0e0 !important;
+  border-color: #0f3460 !important;
+}
+
+/* 3️⃣ Textos originalmente oscuros -> whites con mejor contraste */
+body.dark-mode .nav-link,
+body.dark-mode .section-title,
+body.dark-mode p,
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6,
+body.dark-mode span,
+body.dark-mode label,
+body.dark-mode a:not(.btn):not(.property-badge):not(.social-icon) {
+  color: #e0e0e0 !important;
+}
+
+/* 4️⃣ Placeholder de inputs en modo oscuro */
+body.dark-mode .form-control::placeholder {
+  color: #a0a0a0 !important;
+}
+
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus {
+  background-color: #1a1a2e !important;
+  color: #e0e0e0 !important;
+  border-color: #10bb82 !important;
+  box-shadow: 0 0 0 0.2rem rgba(16, 187, 130, 0.25) !important;
+}
+
+/* 5️⃣ Elementos con verde — mantienen su color pero ajustados */
+body.dark-mode .btn-primary,
+body.dark-mode .property-badge,
+body.dark-mode .social-icon,
+body.dark-mode .map-filter-btn.active,
+body.dark-mode .custom-marker {
+  background-color: #10bb82 !important;
+  color: #1a1a2e !important;
+  border-color: #10bb82 !important;
+}
+
+/* 6️⃣ Texto en precios y elementos destacados */
+body.dark-mode .property-price,
+body.dark-mode .btn-outline-primary,
+body.dark-mode .btn-primary,
+body.dark-mode .map-filter-btn.active,
+body.dark-mode .property-badge,
+body.dark-mode .social-icon,
+body.dark-mode .custom-marker {
+  background-color: #10bb82 !important;
+  border-color: #10bb82 !important;
+  color: #1a1a2e !important;
+}
+
+/* 7️⃣ Hover states (verdes siguen igual pero más brillante) */
+body.dark-mode .btn-primary:hover,
+body.dark-mode .social-icon:hover {
+  background-color: #0daa75 !important;
+  border-color: #0daa75 !important;
+  color: #1a1a2e !important;
+}
+
+/* 8️⃣ Ajuste de footer, header, router-outlet */
+body.dark-mode footer,
+body.dark-mode .navbar,
+body.dark-mode #router-outlet {
+  background-color: #16213e !important;
+  color: #e0e0e0 !important;
+}
+
+/* 9️⃣ Bordes y sombras más sutiles en modo oscuro */
+body.dark-mode .property-card,
+body.dark-mode .search-box,
+body.dark-mode .map-search-container {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(16, 187, 130, 0.2) !important;
+}
+
+/* 🔟 Inputs y selects con fondo oscuro */
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+  background-color: #1a1a2e !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #0f3460 !important;
+}
+
+/* 1️⃣1️⃣ Ajustes específicos para el navbar en modo oscuro */
+body.dark-mode .navbar {
+  background-color: #16213e !important;
+  border-bottom: 1px solid #0f3460 !important;
+}
+
+body.dark-mode .navbar-toggler {
+  background-color: #e0e0e0 !important;
+}
+
+body.dark-mode .nav-link {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .nav-link:hover {
+  color: #10bb82 !important;
+}
+
+body.dark-mode .navbar-brand {
+  color: #10bb82 !important;
+}
+
+/* 1️⃣2️⃣ Footer ajustado para modo oscuro */
+body.dark-mode footer {
+  background-color: #0f0f1a !important;
+  color: #a0a0a0 !important;
+  border-top: 1px solid #0f3460 !important;
+}
+
+/* 1️⃣3️⃣ Hero section con overlay más claro */
+body.dark-mode .hero-section {
+  background: linear-gradient(rgba(20, 20, 40, 0.7), rgba(20, 20, 40, 0.7)), url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&h=800&q=80');
+}
+
+.link-clickable {
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.link-clickable:hover {
+  color: #00A36C; /* verde corporativo */
+  text-decoration: underline;
+}
+
+/* === PANEL DE ACCESIBILIDAD EN MODO OSCURO === */
+/* Estilos de alta especificidad para asegurar que se apliquen */
+body.dark-mode .accessibility-menu {
+  background-color: #16213e !important;
+  border: 2px solid #10bb82 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark-mode .accessibility-menu .menu-title {
+  color: #10bb82 !important;
+  border-bottom: 1px solid #0f3460 !important;
+}
+
+body.dark-mode .accessibility-menu .text-size-control label {
+  color: #10bb82 !important;
+}
+
+body.dark-mode .accessibility-menu .slider-labels {
+  color: #a0a0a0 !important;
+}
+
+body.dark-mode .accessibility-menu .switch-container {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .accessibility-menu p {
+  color: #a0a0a0 !important;
+  font-size: 0.85rem;
+}
+
+body.dark-mode .accessibility-menu input[type="range"] {
+  accent-color: #10bb82 !important;
+}
+
+body.dark-mode .accessibility-menu .slider {
+  background-color: #0f3460 !important;
+}
+
+body.dark-mode .accessibility-menu .slider:before {
+  background-color: #e0e0e0 !important;
+}
+
+body.dark-mode .accessibility-menu input:checked + .slider {
+  background-color: #10bb82 !important;
+}
+
+body.dark-mode .accessibility-menu input:checked + .slider:before {
+  background-color: white !important;
+}
+
+/* === LOGIN EN MODO OSCURO === */
+body.dark-mode app-login .login-container,
+body.dark-mode .login-container {
+  background-color: #16213e !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
+}
+
+body.dark-mode app-login .login-header h2,
+body.dark-mode .login-header h2 {
+  color: #10bb82 !important;
+}
+
+body.dark-mode app-login .login-header p,
+body.dark-mode .login-header p {
+  color: #a0a0a0 !important;
+}
+
+body.dark-mode app-login .form-control,
+body.dark-mode .login-container .form-control {
+  background-color: #1a1a2e !important;
+  border: 1px solid #0f3460 !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode app-login .form-control:focus,
+body.dark-mode .login-container .form-control:focus {
+  background-color: #1a1a2e !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode app-login .form-label,
+body.dark-mode .login-container .form-label {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode app-login .btn-outline-secondary,
+body.dark-mode .login-container .btn-outline-secondary {
+  background-color: #0f3460 !important;
+  border-color: #0f3460 !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode app-login .forgot-password a,
+body.dark-mode .login-container .forgot-password a {
+  color: #10bb82 !important;
+}
+
+body.dark-mode app-login .login-footer,
+body.dark-mode .login-container .login-footer {
+  color: #a0a0a0 !important;
+  border-top: 1px solid #0f3460 !important;
+}
+
+body.dark-mode app-login .login-footer a,
+body.dark-mode .login-container .login-footer a {
+  color: #10bb82 !important;
+}
+
+body.dark-mode app-login .password-toggle-icon,
+body.dark-mode .login-container .password-toggle-icon {
+  color: #a0a0a0 !important;
+}
+
+/* === REGISTRO EN MODO OSCURO === */
+body.dark-mode app-registro .register-container,
+body.dark-mode .register-container {
+  background-color: #16213e !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4) !important;
+}
+
+body.dark-mode app-registro .register-header h2,
+body.dark-mode .register-header h2 {
+  color: #10bb82 !important;
+}
+
+body.dark-mode app-registro .register-header p,
+body.dark-mode .register-header p {
+  color: #a0a0a0 !important;
+}
+
+body.dark-mode app-registro .form-label,
+body.dark-mode .register-container .form-label {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode app-registro .register-footer,
+body.dark-mode .register-container .register-footer {
+  color: #a0a0a0 !important;
+  border-top: 1px solid #0f3460 !important;
+}
+
+body.dark-mode app-registro .register-footer a,
+body.dark-mode .register-container .register-footer a {
+  color: #10bb82 !important;
+}
+
+body.dark-mode app-registro .politica-link,
+body.dark-mode .register-container .politica-link {
+  color: #10bb82 !important;
+}
+
+body.dark-mode app-registro .form-check-label,
+body.dark-mode .register-container .form-check-label {
+  color: #e0e0e0 !important;
+}
+
+/* === INICIO-DEFAULT EN MODO OSCURO === */
+body.dark-mode app-inicio-default .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+body.dark-mode app-inicio-default .modal-container {
+  background-color: #16213e !important;
+  color: #e0e0e0 !important;
+}
+
+/* === CONOCENOS EN MODO OSCURO === */
+body.dark-mode app-conocenos .conocenos-container,
+body.dark-mode .conocenos-container {
+  background-color: #1a1a2e !important;
+}
+
+body.dark-mode app-conocenos .section-card,
+body.dark-mode .section-card {
+  background-color: #16213e !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode app-conocenos .section-card h2,
+body.dark-mode .section-card h2 {
+  color: #10bb82 !important;
+}
+
+body.dark-mode app-conocenos .section-card p,
+body.dark-mode app-conocenos .section-card ul,
+body.dark-mode .section-card p,
+body.dark-mode .section-card ul {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode app-conocenos .valor-item,
+body.dark-mode .valor-item {
+  background-color: rgba(16, 187, 130, 0.2) !important;
+  color: #10bb82 !important;
+}
+
+body.dark-mode app-conocenos .stat-card,
+body.dark-mode .stat-card {
+  background-color: #16213e !important;
+}
+
+body.dark-mode app-conocenos .stat-card h3,
+body.dark-mode .stat-card h3 {
+  color: #10bb82 !important;
+}
+
+/* === POLÍTICA TRATAMIENTO DATOS EN MODO OSCURO === */
+body.dark-mode app-politica-tratamiento-datos .politica-container,
+body.dark-mode .politica-container {
+  background-color: #1a1a2e !important;
+}
+
+body.dark-mode app-politica-tratamiento-datos .politica-content,
+body.dark-mode .politica-content {
+  background-color: #16213e !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode app-politica-tratamiento-datos .politica-content h2,
+body.dark-mode .politica-content h2 {
+  color: #10bb82 !important;
+}
+
+body.dark-mode app-politica-tratamiento-datos .politica-content p,
+body.dark-mode app-politica-tratamiento-datos .politica-content ul,
+body.dark-mode .politica-content p,
+body.dark-mode .politica-content ul {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode app-politica-tratamiento-datos .firma,
+body.dark-mode .firma {
+  background-color: rgba(16, 187, 130, 0.15) !important;
+  color: #e0e0e0 !important;
+}
+
+/* === CONTACTENOS EN MODO OSCURO === */
+body.dark-mode app-contactenos .contact-form-container,
+body.dark-mode .contact-form-container {
+  background-color: #16213e !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-mode app-contactenos .form-header h1,
+body.dark-mode .form-header h1 {
+  color: #10bb82 !important;
+}
+
+body.dark-mode app-contactenos .form-header p,
+body.dark-mode .form-header p {
+  color: #a0a0a0 !important;
+}
+
+body.dark-mode app-contactenos .form-section,
+body.dark-mode .form-section {
+  border-bottom: 1px solid #0f3460 !important;
+}
+
+body.dark-mode app-contactenos .section-title,
+body.dark-mode .section-title {
+  color: #10bb82 !important;
+}
+
+body.dark-mode app-contactenos .form-control,
+body.dark-mode .contact-form-container .form-control {
+  background-color: #1a1a2e !important;
+  border: 1px solid #0f3460 !important;
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode app-contactenos .form-label,
+body.dark-mode .contact-form-container .form-label {
+  color: #e0e0e0 !important;
+}
+
