@@ -1,0 +1,59 @@
+.brand-sub {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555;
+  margin-left: 4px;
+}
+
+.nav-link.active {
+  color: var(--primary) !important;
+  font-weight: 600;
+}
+
+.btn-icono {
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 1.15rem;
+}
+
+.btn-icono:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.badge-noleidos {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #e53935;
+  color: #fff;
+  font-size: 0.7rem;
+  border-radius: 10px;
+  padding: 1px 6px;
+}
+
+.btn-usuario {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #ddd;
+  border-radius: 30px;
+  padding: 4px 14px 4px 4px;
+  background: #fff;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+}

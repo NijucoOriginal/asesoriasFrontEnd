@@ -1,43 +1,21 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
-// Definición de interfaces para las respuestas
-export interface ActivationResponse {
-  message?: string;
-  // Pueden agregarse más propiedades según la respuesta real del backend
-}
-
-export interface ResendCodeResponse {
-  message?: string;
-  // Pueden agregarse más propiedades según la respuesta real del backend
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class ActivarCuentaService {
-  //private baseUrl = 'https://inmobiliariasoft3back2-0.onrender.com/api/auth';
-  private baseUrl='http://localhost:8080/api/auth';
-  constructor(private http: HttpClient) { }
+  private readonly baseUrl = `${environment.backendUrl}/api/auth`;
 
-  /**
-   * Activa la cuenta del usuario usando el código de activación
-   * @param code Código de activación de 6 dígitos
-   * @returns Observable con la respuesta de activación
-   */
+  constructor(private http: HttpClient) {}
+
+  /** GET /api/auth/activate/{codigo} — responde texto plano. */
   activateAccount(code: string): Observable<string> {
-    const url = `${this.baseUrl}/activate/${code}`;
-    return this.http.get(url, { responseType: 'text' });
+    return this.http.get(`${this.baseUrl}/activate/${encodeURIComponent(code)}`, { responseType: 'text' });
   }
 
-  /**
-   * Reenvía el código de activación al correo del usuario
-   * @param email Correo electrónico del usuario
-   * @returns Observable con la respuesta del reenvío
-   */
-  resendActivationCode(email: string): Observable<ResendCodeResponse> {
-    const url = `${this.baseUrl}/resend-activation`;
-    return this.http.post<ResendCodeResponse>(url, { email });
+  /** POST /api/auth/resend-activation — responde texto plano (mismo mensaje exista o no el correo). */
+  resendActivationCode(email: string): Observable<string> {
+    return this.http.post(`${this.baseUrl}/resend-activation`, { email }, { responseType: 'text' });
   }
 }

@@ -43,11 +43,8 @@ export class ChatService implements OnDestroy {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   conectarWebSocket(): void {
-    console.log('=== conectarWebSocket llamado ===');
-    console.log('Token:', this.authService.getToken() ? 'existe' : 'NO existe');
-    console.log('Ya conectado:', this.conectado);
     const token = this.authService.getToken();
-    if (!token || this.conectado) return;
+    if (!token || this.conectado || this.stompClient?.active) return;
 
     // ✅ Convierte http→ws / https→wss
     const wsUrl = this.WS_URL
@@ -105,7 +102,12 @@ export class ChatService implements OnDestroy {
     this.subMensajes?.unsubscribe();
     this.subNotificaciones?.unsubscribe();
     this.stompClient?.deactivate();
+    this.stompClient = null;
     this.conectado = false;
+    this._panelAbierto.next(false);
+    this._conversacionActiva.next(null);
+    this._conversaciones.next([]);
+    this._totalNoLeidos.next(0);
   }
 
   abrirPanel(): void {
@@ -142,7 +144,10 @@ export class ChatService implements OnDestroy {
           this._panelAbierto.next(true);
           this.refrescarConversaciones();
         },
-        error: (err) => console.error('Error al iniciar conversación:', err),
+        error: (err) => {
+          console.error('Error al iniciar conversación:', err);
+          this.authService.showAlert('error', 'No se pudo abrir la conversación.');
+        },
       });
   }
 

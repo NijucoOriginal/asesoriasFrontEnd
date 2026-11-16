@@ -1,48 +1,40 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import {HeaderComponent} from './componentes/header/header.component';
-import {FooterComponent} from './componentes/footer/footer.component';
-import {AccesibilidadComponent} from './componentes/accesibilidad/accesibilidad.component';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import {ChatbotComponent} from './componentes/chatbot/chatbot.component';
-import {ChatbotIaComponent} from './componentes/chatbot-ia/chatbot-ia.component';
-import {ChatFlotanteComponent} from './componentes/chat-flotante/chat-flotante.component';
-import {AuthService} from './servicios/auth.service';
-import {ChatService} from './servicios/chat.service';
-
+import { Subscription } from 'rxjs';
+import { NavbarComponent } from './componentes/navbar/navbar.component';
+import { FooterComponent } from './componentes/footer/footer.component';
+import { AccesibilidadComponent } from './componentes/accesibilidad/accesibilidad.component';
+import { ChatFlotanteComponent } from './componentes/chat-flotante/chat-flotante.component';
+import { ToastsComponent } from './componentes/toasts/toasts.component';
+import { AuthService } from './servicios/auth.service';
+import { ChatService } from './servicios/chat.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-
-  imports: [HeaderComponent, FooterComponent, RouterOutlet, AccesibilidadComponent, ChatbotComponent, ChatbotIaComponent,ChatFlotanteComponent]
+  imports: [NavbarComponent, FooterComponent, RouterOutlet, AccesibilidadComponent, ChatFlotanteComponent, ToastsComponent],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'Asesorías Edén';
-  footer = 'Universidad del Quindío';
+  /** El chat solo está disponible para cuentas ACTIVAS (SecurityConfig: /api/chat/**). */
+  chatDisponible = false;
+  private sub?: Subscription;
 
-  isMobile = false;
+  constructor(private authService: AuthService, private chatService: ChatService) {}
 
-
-  constructor(private breakpointObserver: BreakpointObserver,private authService: AuthService, private chatService: ChatService) {
-
+  ngOnInit(): void {
+    this.sub = this.authService.sesion$.subscribe(sesion => {
+      this.chatDisponible = sesion?.estado === 'ACTIVO';
+      if (this.chatDisponible) {
+        this.chatService.conectarWebSocket();
+      } else {
+        this.chatService.desconectarWebSocket();
+      }
+    });
   }
 
-  ngOnInit() {
-
-    console.log('AppComponent iniciado');
-    console.log('Autenticado:', this.authService.isAuthenticated());
-
-    if (this.authService.isAuthenticated()) {
-      this.chatService.conectarWebSocket();
-    }
-
-
-    this.breakpointObserver
-      .observe([Breakpoints.Handset])
-      .subscribe(result => {
-        this.isMobile = result.matches;
-      });
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 }

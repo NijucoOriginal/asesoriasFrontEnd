@@ -1,0 +1,45 @@
+.asesoria {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+  border-left: 5px solid transparent;
+}
+
+.asesoria.atencion {
+  border-left-color: #f5b301;
+}
+
+.btn-tab {
+  border: 1px solid #ddd;
+  background: #fff;
+  font-weight: 500;
+}
+
+.btn-tab.activo {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.rol-chip {
+  display: inline-block;
+  background: #f0f0f0;
+  border-radius: 10px;
+  padding: 1px 8px;
+  margin-right: 6px;
+  font-size: 0.75rem;
+}
+
+.datos i {
+  color: var(--primary);
+  margin-right: 4px;
+}
+
+.descripcion {
+  color: #555;
+}
+
+.btn-sm.btn-primary,
+.btn-sm.btn-outline-primary {
+  padding: 4px 14px;
+}

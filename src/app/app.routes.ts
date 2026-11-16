@@ -1,111 +1,46 @@
 import { Routes } from '@angular/router';
-import { InicioComponent } from './componentes/inicio/inicio.component';
+import { InicioDefaultComponent } from './componentes/inicio-default/inicio-default.component';
 import { LoginComponent } from './componentes/login/login.component';
 import { RegistroComponent } from './componentes/registro/registro.component';
-import {VentanaAgenteComponent} from './componentes/ventana-agente/ventana-agente.component';
-import {UnauthorizedComponent} from './componentes/unauthorized/unauthorized.component';
-import {RegistroInmuebleComponent} from './componentes/registro-inmueble/registro-inmueble.component';
-import {RecuperarContraseniaComponent} from './componentes/recuperar-contrasenia/recuperar-contrasenia.component';
-import {ActivarComponent} from './componentes/activar-cuenta/activar.component';
-import { InicioDefaultComponent } from './componentes/inicio-default/inicio-default.component';
-import {PerfilComponent} from './componentes/perfil/perfil.component';
-import { MetricasAdminComponent } from './componentes/metricas-admin/metricas-admin.component';
-
-import {
-  PoliticaTratamientoDatosComponent
-} from './componentes/politica-tratamiento-datos/politica-tratamiento-datos.component';
-
-import {authGuard} from './guards/auth.guard';
-import {rolesGuard} from './guards/roles.guard';
-import {RecuperarContrasenaComponent} from './componentes/recuperar-contrasena/recuperar-contrasena.component';
-import {CambiarContrasenaComponent} from './componentes/cambiar-contrasena/cambiar-contrasena.component';
-import {ConocenosComponent} from './componentes/conocenos/conocenos.component';
-import {ContactenosComponent} from './componentes/contactenos/contactenos.component';
-import {CatalogoComponent} from './componentes/catalogo/catalogo.component';
-
+import { ActivarComponent } from './componentes/activar-cuenta/activar.component';
+import { RecuperarContrasenaComponent } from './componentes/recuperar-contrasena/recuperar-contrasena.component';
+import { CambiarContrasenaComponent } from './componentes/cambiar-contrasena/cambiar-contrasena.component';
+import { ConocenosComponent } from './componentes/conocenos/conocenos.component';
+import { ContactenosComponent } from './componentes/contactenos/contactenos.component';
+import { PoliticaTratamientoDatosComponent } from './componentes/politica-tratamiento-datos/politica-tratamiento-datos.component';
+import { UnauthorizedComponent } from './componentes/unauthorized/unauthorized.component';
+import { PerfilComponent } from './componentes/perfil/perfil.component';
+import { TutoresComponent } from './componentes/tutores/tutores.component';
+import { TutorDetalleComponent } from './componentes/tutor-detalle/tutor-detalle.component';
+import { AsesoriasComponent } from './componentes/asesorias/asesorias.component';
+import { ReactivarComponent } from './componentes/reactivar/reactivar.component';
+import { authGuard, cuentaActivaGuard, invitadoGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  {
-    path: '',
-    component: InicioDefaultComponent
-  },
-  {
-    path: 'inicio',
-    component: InicioComponent,
-    canActivate: [authGuard, rolesGuard],
-    data: { expectedRoles: ["CLIENTE", "ASESOR","AGENTE","ADMIN"] }
-  },
-  {
-    path: 'login',
-    component: LoginComponent
-  },
-  {
-    path: 'registro',
-    component: RegistroComponent
-  },
-  {
-    path: 'politicaDatos',
-    component: PoliticaTratamientoDatosComponent
-  }
-  ,
-  {
-    path: 'recuperar',
-    component: RecuperarContrasenaComponent
-  },
-  {
-    path: 'cambiar-contrasena',
-    component: CambiarContrasenaComponent
-  },
-  {
-    path: 'conocenos',
-    component: ConocenosComponent
-  },
-  {
-    path: 'contactenos',
-    component: ContactenosComponent
-  },
-  {
-    path: 'catalogo',
-    component: CatalogoComponent
-  },
-  // Rutas protegidas para usuarios logueados
-  {
-    path: 'recuperar2',
-    component: RecuperarContraseniaComponent,
+  // Públicas
+  { path: '', component: InicioDefaultComponent, title: 'Asesorías Edén' },
+  { path: 'tutores', component: TutoresComponent, title: 'Tutores · Asesorías Edén' },
+  { path: 'tutores/:id', component: TutorDetalleComponent, title: 'Tutor · Asesorías Edén' },
+  { path: 'conocenos', component: ConocenosComponent, title: 'Conócenos · Asesorías Edén' },
+  { path: 'contactenos', component: ContactenosComponent, title: 'Contáctenos · Asesorías Edén' },
+  { path: 'politicaDatos', component: PoliticaTratamientoDatosComponent, title: 'Política de datos · Asesorías Edén' },
 
-  },
-  {
-    path: 'activar',
-    component: ActivarComponent
-  },
-  {
-    path: 'ventanaAgente',
-    component: VentanaAgenteComponent,
-    canActivate: [rolesGuard],
-    data: { expectedRoles: ["AGENTE"] }
-  },
-  {
-    path: 'registroInmueble',
-    component: RegistroInmuebleComponent,
-    canActivate: [authGuard]
-  },
-  {
-    path: 'unauthorized',
-    component: UnauthorizedComponent
-  },
-  {
-    path: 'perfil',
-    component: PerfilComponent
-  },
-  {
-    path: 'metricas-admin',
-    component: MetricasAdminComponent,
-    canActivate: [authGuard, rolesGuard],
-    data: { expectedRoles: ["ADMIN"] }
-  },
-  {
-    path: '**',
-    redirectTo: '/inicio',
-    pathMatch: 'full'
-  },
+  // Cuenta (invitados)
+  { path: 'login', component: LoginComponent, canActivate: [invitadoGuard], title: 'Iniciar sesión · Asesorías Edén' },
+  { path: 'registro', component: RegistroComponent, canActivate: [invitadoGuard], title: 'Registro · Asesorías Edén' },
+  { path: 'activar', component: ActivarComponent, title: 'Activar cuenta · Asesorías Edén' },
+  { path: 'recuperar', component: RecuperarContrasenaComponent, title: 'Recuperar contraseña · Asesorías Edén' },
+  { path: 'cambiar-contrasena', component: CambiarContrasenaComponent, title: 'Cambiar contraseña · Asesorías Edén' },
+
+  // Con sesión
+  { path: 'perfil', component: PerfilComponent, canActivate: [authGuard], title: 'Mi perfil · Asesorías Edén' },
+  { path: 'reactivar', component: ReactivarComponent, canActivate: [authGuard], title: 'Reactivar cuenta · Asesorías Edén' },
+  { path: 'asesorias', component: AsesoriasComponent, canActivate: [cuentaActivaGuard], title: 'Mis asesorías · Asesorías Edén' },
+
+  // Compatibilidad con rutas antiguas
+  { path: 'inicio', redirectTo: '', pathMatch: 'full' },
+  { path: 'catalogo', redirectTo: 'tutores', pathMatch: 'full' },
+
+  { path: 'unauthorized', component: UnauthorizedComponent },
+  { path: '**', redirectTo: '' },
 ];

@@ -107,7 +107,7 @@ export const EN = {
 
   // === LOGIN ===
   login: {
-    titulo: 'Access your real estate account',
+    titulo: 'Access your Edén Tutoring account',
     email: 'EMAIL',
     contrasena: 'PASSWORD',
     placeholderEmail: 'Enter your email',
@@ -125,7 +125,7 @@ export const EN = {
 
   // === REGISTRO ===
   registro: {
-    titulo: 'Create client account',
+    titulo: 'Create your student account',
     nombre: 'FIRST NAME',
     apellido: 'LAST NAME',
     documentoIdentidad: 'IDENTITY DOCUMENT',
@@ -185,21 +185,21 @@ export const EN = {
   // === CONÓCENOS ===
   conocenos: {
     titulo: 'About Us',
-    subtitulo: 'INMOBILIARIA EDÉN S.A.S.',
-    heroSubtitle: 'Your space, our commitment',
+    subtitulo: 'EDÉN ASESORÍAS',
+    heroSubtitle: 'Learning together is learning better',
     historia: 'Our History',
-    historiaTexto1: 'INMOBILIARIA EDÉN S.A.S. is a Colombian company founded with the purpose of transforming the real estate experience in the country. We were born with the vision of offering a transparent, close and professional service, providing comprehensive support in each process of buying, selling and renting real estate.',
-    historiaTexto2: 'Since our beginnings, we have worked under solid principles of ethics, responsibility and commitment to our clients.',
+    historiaTexto1: 'EDÉN Asesorías was born at Universidad del Quindío as an academic project to connect students who need support with peers who master a subject and want to teach it.',
+    historiaTexto2: 'We believe in peer learning: close, flexible and with the trust of sharing the same university environment.',
     trayectoria: 'Our Track Record',
-    trayectoriaTexto: 'We operate in Colombia, offering real estate solutions in the residential, commercial and corporate sector. Throughout our history we have accompanied hundreds of families and companies in the acquisition, sale and administration of properties.',
-    trayectoriaItem1: '✔ Management of property purchases and sales',
-    trayectoriaItem2: '✔ Rental administration',
-    trayectoriaItem3: '✔ Real estate legal advice',
-    trayectoriaItem4: '✔ Appraisals and market studies',
+    trayectoriaTexto: 'The platform lets you find tutors by subject, request sessions, negotiate schedule and price, chat and rate every experience.',
+    trayectoriaItem1: '✔ Tutors from every undergraduate program',
+    trayectoriaItem2: '✔ Requests and counter-offers on schedule and price',
+    trayectoriaItem3: '✔ Direct chat between student and tutor',
+    trayectoriaItem4: '✔ Student reviews and ratings',
     mision: 'Mission',
-    misionTexto: 'To offer safe, efficient and transparent real estate solutions, generating trust and value in each commercial relationship.',
+    misionTexto: 'Make quality academic tutoring between students accessible, strengthening academic performance and retention.',
     vision: 'Vision',
-    visionTexto: 'To consolidate ourselves as a leading real estate company in Colombia, recognized for our innovation, excellence in service and commitment to the development of the real estate sector.',
+    visionTexto: 'To be the reference peer-tutoring network at Universidad del Quindío, known for trust, quality and closeness.',
     valores: 'Our Values',
     valor1: 'Transparency',
     valor2: 'Commitment',
@@ -207,16 +207,16 @@ export const EN = {
     valor4: 'Trust',
     valor5: 'Excellence',
     estructura: 'Organizational Structure',
-    estructuraItem1: 'General Management:',
-    estructuraItem1Desc: 'Strategic direction and decision making.',
-    estructuraItem2: 'Commercial Area:',
-    estructuraItem2Desc: 'Sales management and customer service.',
-    estructuraItem3: 'Legal Area:',
-    estructuraItem3Desc: 'Legal support in contracts and procedures.',
-    estructuraItem4: 'Administrative Area:',
-    estructuraItem4Desc: 'Financial and operational management.',
-    clientesAtendidos: 'Clients Served',
-    propiedadesGestionadas: 'Properties Managed',
+    estructuraItem1: 'Students:',
+    estructuraItem1Desc: 'Find tutors and request sessions.',
+    estructuraItem2: 'Tutors:',
+    estructuraItem2Desc: 'Teach the subjects they master and manage their requests.',
+    estructuraItem3: 'Moderators:',
+    estructuraItem3Desc: 'Ensure quality and good conduct.',
+    estructuraItem4: 'Support:',
+    estructuraItem4Desc: 'Answers questions through the contact form.',
+    clientesAtendidos: 'Students helped',
+    propiedadesGestionadas: 'Sessions delivered',
     anosExperiencia: 'Years of Experience',
     volverInicio: 'Back to home',
   },
@@ -366,7 +366,7 @@ export const EN = {
   // === POLÍTICA DE DATOS ===
   politicaDatos: {
     titulo: 'Personal Data Processing Policy',
-    subtitulo: 'INMOBILIARIA EDÉN S.A.S.',
+    subtitulo: 'EDÉN ASESORÍAS',
     volver: 'Back',
     ultimaActualizacion: 'Last updated: April 14, 2026',
     lema: '"Your space, our commitment."',
@@ -384,32 +384,32 @@ export const EN = {
       vigencia: '10. Validity and Update'
     },
 
-    introduccion: 'INMOBILIARIA EDÉN S.A.S., developed as a university project with principal address in Armenia, Quindío, Colombia, in compliance with the Political Constitution of Colombia (Article 15), Law 1581 of 2012, Decree 1377 of 2013, Decree 1074 of 2015, and other applicable regulations, adopts this Personal Data Processing Policy.',
+    introduccion: 'EDÉN ASESORÍAS, developed as a university project with principal address in Armenia, Quindío, Colombia, in compliance with the Political Constitution of Colombia (Article 15), Law 1581 of 2012, Decree 1377 of 2013, Decree 1074 of 2015, and other applicable regulations, adopts this Personal Data Processing Policy.',
 
-    alcance: 'This policy applies to all holders of personal data processed by INMOBILIARIA EDÉN S.A.S., including clients, advisors, suppliers, and users registered on its digital platforms, in relation to property purchase, sale, and rental services.',
+    alcance: 'This policy applies to all holders of personal data processed by EDÉN ASESORÍAS, including students, tutors and users registered on its digital platforms, in relation to the request and offer of academic tutoring for the undergraduate programs of Universidad del Quindío.',
 
     definiciones: [
       { termino: 'Personal data:', descripcion: 'Information linked or that can be associated with a determined or determinable natural person.' },
       { termino: 'Sensitive data:', descripcion: 'Information that affects the privacy of the holder or whose misuse may generate discrimination.' },
       { termino: 'Holder:', descripcion: 'Natural person whose personal data is subject to processing.' },
-      { termino: 'Processing officer:', descripcion: 'INMOBILIARIA EDÉN S.A.S., who decides on the database and its processing.' },
+      { termino: 'Processing officer:', descripcion: 'EDÉN ASESORÍAS, who decides on the database and its processing.' },
       { termino: 'Data processor:', descripcion: 'Natural or legal person who carries out processing on behalf of the responsible party.' },
       { termino: 'Processing:', descripcion: 'Any operation on personal data, such as collection, storage, use, circulation, or deletion.' }
     ],
 
     principios: 'The processing of personal data shall be governed by the principles of legality, purpose, freedom, truthfulness, transparency, restricted access and circulation, security, and confidentiality, as established in Article 4 of Law 1581 of 2012.',
 
-    finalidades: 'The personal data collected will be used to: (i) manage contractual relationships with clients in real estate operations; (ii) administer property purchase, sale, and rental processes; (iii) send information about properties and company services; (iv) comply with legal and accounting obligations; (v) handle requests, complaints, and claims; and (vi) improve the user experience on the company\'s digital platforms.',
+    finalidades: 'The personal data collected will be used to: (i) manage the relationship with students and tutors; (ii) administer the request and offer of academic tutoring; (iii) send information about tutors, subjects and platform services; (iv) comply with legal and accounting obligations; (v) handle requests, complaints, and claims; and (vi) improve the user experience on the company\'s digital platforms.',
 
     derechos: 'In accordance with Law 1581 of 2012, holders have the right to: know, update, and rectify their personal data; request proof of the authorization granted; be informed about the use of their data; file complaints with the Superintendency of Industry and Commerce; and revoke authorization and request deletion of their data when constitutional and legal principles are not respected.',
 
     procedimiento: 'Requests may be sent to inmobiliariaedenco@gmail.com. Inquiries will be answered within a maximum of 10 business days and claims within 15 business days, in accordance with Articles 14 and 15 of Law 1581 of 2012.',
 
-    seguridad: 'INMOBILIARIA EDÉN S.A.S. adopts the technical and administrative measures necessary to guarantee the security of personal data and prevent its alteration, loss, unauthorized consultation, use, or fraudulent access, in accordance with Article 17 of Law 1581 of 2012.',
+    seguridad: 'EDÉN ASESORÍAS adopts the technical and administrative measures necessary to guarantee the security of personal data and prevent its alteration, loss, unauthorized consultation, use, or fraudulent access, in accordance with Article 17 of Law 1581 of 2012.',
 
-    transferencia: 'INMOBILIARIA EDÉN S.A.S. may transfer or transmit personal data to third parties only when there is authorization from the holder, a legal obligation, or a contractual relationship that justifies it, always ensuring compliance with Law 1581 of 2012.',
+    transferencia: 'EDÉN ASESORÍAS may transfer or transmit personal data to third parties only when there is authorization from the holder, a legal obligation, or a contractual relationship that justifies it, always ensuring compliance with Law 1581 of 2012.',
 
-    vigencia: 'This policy is effective as of March 3, 2026, and will remain in force as long as INMOBILIARIA EDÉN S.A.S. processes personal data. It may be modified when necessary; any material update will be published on the company\'s official channels.'
+    vigencia: 'This policy is effective as of March 3, 2026, and will remain in force as long as EDÉN ASESORÍAS processes personal data. It may be modified when necessary; any material update will be published on the company\'s official channels.'
   },
 
   // === COMÚN ===
