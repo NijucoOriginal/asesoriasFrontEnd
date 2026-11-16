@@ -1,0 +1,199 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h2 class="section-title mb-0">Mis asesorías</h2>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary rounded-pill" (click)="cargar()" [disabled]="cargando" title="Actualizar">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+      <a class="btn btn-primary" routerLink="/tutores"><i class="bi bi-plus-lg me-1"></i>Nueva asesoría</a>
+    </div>
+  </div>
+
+  @if (pendientesDeMi > 0) {
+    <div class="alert alert-warning py-2">
+      <i class="bi bi-bell me-1"></i> Tienes {{ pendientesDeMi }} {{ pendientesDeMi === 1 ? 'asesoría que espera' : 'asesorías que esperan' }} tu respuesta.
+    </div>
+  }
+
+  <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+    <div class="btn-group" role="group" aria-label="Rol">
+      <button class="btn btn-tab" [class.activo]="vista === 'todas'" (click)="vista = 'todas'">Todas ({{ contar('todas') }})</button>
+      <button class="btn btn-tab" [class.activo]="vista === 'estudiante'" (click)="vista = 'estudiante'">Como estudiante ({{ contar('estudiante') }})</button>
+      <button class="btn btn-tab" [class.activo]="vista === 'tutor'" (click)="vista = 'tutor'">Como tutor ({{ contar('tutor') }})</button>
+    </div>
+    <select class="form-select w-auto" [(ngModel)]="filtro" aria-label="Filtrar por estado">
+      <option value="activas">En curso</option>
+      <option value="historial">Historial</option>
+      <option value="todas">Todas</option>
+    </select>
+  </div>
+
+  @if (cargando) {
+    <div class="text-center py-5"><div class="spinner-border text-success"></div></div>
+  } @else if (error) {
+    <div class="alert alert-danger d-flex justify-content-between align-items-center">
+      <span>{{ error }}</span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (visibles.length === 0) {
+    <div class="text-center text-muted py-5">
+      <i class="bi bi-calendar-x fs-1"></i>
+      <p class="mt-2">No tienes asesorías {{ filtro === 'activas' ? 'en curso' : filtro === 'historial' ? 'en el historial' : '' }}.</p>
+      <a class="btn btn-outline-primary" routerLink="/tutores">Buscar un tutor</a>
+    </div>
+  } @else {
+    <div class="d-flex flex-column gap-3">
+      @for (a of visibles; track a.id) {
+        <div class="card asesoria" [class.atencion]="puedoResponder(a)">
+          <div class="card-body">
+            <div class="d-flex justify-content-between flex-wrap gap-2">
+              <div>
+                <h5 class="mb-1">{{ a.materiaNombre }}</h5>
+                <div class="text-muted small">
+                  <span class="rol-chip">{{ soyTutor(a) ? 'Eres el tutor' : 'Eres el estudiante' }}</span>
+                  {{ soyTutor(a) ? 'Estudiante' : 'Tutor' }}: <strong>{{ contraparte(a).nombre }} {{ contraparte(a).apellido }}</strong>
+                </div>
+              </div>
+              <span class="estado-badge align-self-start" [class]="'estado-badge align-self-start estado-' + a.estado">{{ etiquetas[a.estado] }}</span>
+            </div>
+
+            @if (a.temas.length) {
+              <div class="mt-2">
+                @for (t of a.temas; track t) { <span class="badge text-bg-light me-1">{{ t }}</span> }
+              </div>
+            }
+
+            <div class="row mt-3 g-2 small datos">
+              <div class="col-sm-6 col-lg-4">
+                <i class="bi bi-calendar-event"></i>
+                {{ inicio(a) | date:'EEE d MMM y' }}
+              </div>
+              <div class="col-sm-6 col-lg-4">
+                <i class="bi bi-clock"></i>
+                {{ inicio(a) | date:'h:mm a' }} – {{ cierre(a) | date:'h:mm a' }}
+              </div>
+              <div class="col-sm-6 col-lg-4">
+                <i class="bi bi-cash-coin"></i>
+                {{ a.precio | currency:'COP':'symbol-narrow':'1.0-0' }}
+                @if (a.estado === 'CONTRAPROPUESTA' && a.motivoContrapropuesta) {
+                  <span class="badge text-bg-info ms-1">Cambio de {{ a.motivoContrapropuesta === 'PRECIO' ? 'precio' : 'horario' }}</span>
+                }
+              </div>
+            </div>
+
+            <p class="mt-2 mb-0 small descripcion">{{ descripcionEstado(a) }}</p>
+
+            <div class="d-flex flex-wrap gap-2 mt-3">
+              @if (puedoResponder(a)) {
+                <button class="btn btn-sm btn-primary" (click)="aceptar(a)" [disabled]="procesando === a.id">
+                  <i class="bi bi-check-lg"></i> Aceptar
+                </button>
+                <button class="btn btn-sm btn-outline-primary" (click)="abrirPropuesta(a)" [disabled]="procesando === a.id">
+                  <i class="bi bi-arrow-left-right"></i> {{ soyTutor(a) ? 'Contraproponer' : 'Enviar otra propuesta' }}
+                </button>
+                <button class="btn btn-sm btn-outline-danger rounded-pill" (click)="rechazar(a)" [disabled]="procesando === a.id">
+                  <i class="bi bi-x-lg"></i> Rechazar
+                </button>
+              }
+              @if (puedoCancelar(a)) {
+                <button class="btn btn-sm btn-outline-danger rounded-pill" (click)="cancelar(a)"
+                        [disabled]="procesando === a.id || fueraDeVentana(a)"
+                        [title]="fueraDeVentana(a) ? 'Solo se puede cancelar hasta 12 horas antes' : ''">
+                  <i class="bi bi-slash-circle"></i> Cancelar
+                </button>
+              }
+              @if (puedoResenar(a)) {
+                <button class="btn btn-sm btn-outline-warning rounded-pill" (click)="abrirResena(a)" [disabled]="procesando === a.id">
+                  <i class="bi bi-star"></i> {{ resenas.has(a.id) ? 'Editar reseña' : 'Calificar' }}
+                </button>
+              }
+              <button class="btn btn-sm btn-light rounded-pill" (click)="mensaje(a)">
+                <i class="bi bi-chat-dots"></i> Mensaje
+              </button>
+              @if (procesando === a.id) { <span class="spinner-border spinner-border-sm text-success align-self-center"></span> }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Modal de propuesta / contrapropuesta -->
+@if (propuesta) {
+  <div class="modal-fondo" (click)="propuesta = null">
+    <div class="modal-caja" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h4 class="modal-title-green mb-0">{{ soyTutor(propuesta) ? 'Contrapropuesta' : 'Nueva propuesta' }}</h4>
+          <small class="text-muted">{{ propuesta.materiaNombre }} · con {{ contraparte(propuesta).nombre }}</small>
+        </div>
+        <button type="button" class="btn-close" aria-label="Cerrar" (click)="propuesta = null"></button>
+      </div>
+      <form (ngSubmit)="enviarPropuesta()">
+        <div class="row g-3 mb-3">
+          <div class="col-sm-6">
+            <label class="form-label" for="pInicio">Inicio</label>
+            <input id="pInicio" type="datetime-local" class="form-control" name="inicio" [min]="minFecha" [(ngModel)]="formPropuesta.inicio" required>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label" for="pCierre">Cierre</label>
+            <input id="pCierre" type="datetime-local" class="form-control" name="cierre" [min]="formPropuesta.inicio || minFecha" [(ngModel)]="formPropuesta.cierre" required>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="pPrecio">Precio (COP)</label>
+          <input id="pPrecio" type="number" min="1" step="1000" class="form-control" name="precio" [(ngModel)]="formPropuesta.precio" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="pMotivo">Motivo del cambio</label>
+          <select id="pMotivo" class="form-select" name="motivo" [(ngModel)]="formPropuesta.motivo">
+            <option [ngValue]="null">Detectar automáticamente</option>
+            <option [ngValue]="'PRECIO'">Precio</option>
+            <option [ngValue]="'FECHA'">Fecha / horario</option>
+          </select>
+        </div>
+        @if (errorPropuesta) { <div class="text-danger small mb-2">{{ errorPropuesta }}</div> }
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="propuesta = null">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!!errorPropuesta || procesando === propuesta.id">Enviar propuesta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Modal de reseña -->
+@if (resenaDe) {
+  <div class="modal-fondo" (click)="resenaDe = null">
+    <div class="modal-caja" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h4 class="modal-title-green mb-0">{{ resenas.has(resenaDe.id) ? 'Editar reseña' : 'Califica tu asesoría' }}</h4>
+          <small class="text-muted">{{ resenaDe.materiaNombre }} · {{ resenaDe.asesor.nombre }} {{ resenaDe.asesor.apellido }}</small>
+        </div>
+        <button type="button" class="btn-close" aria-label="Cerrar" (click)="resenaDe = null"></button>
+      </div>
+      <div class="text-center mb-3">
+        <app-estrellas [editable]="true" [(valor)]="formResena.calificacion"></app-estrellas>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="rDesc">Comentario <span class="text-muted small">(opcional)</span></label>
+        <textarea id="rDesc" class="form-control rounded-4" rows="4" maxlength="1000" [(ngModel)]="formResena.descripcion"
+                  placeholder="¿Cómo te fue con la asesoría?"></textarea>
+        <div class="text-end small text-muted">{{ formResena.descripcion.length }}/1000</div>
+      </div>
+      <div class="d-flex justify-content-between gap-2">
+        <div>
+          @if (resenas.has(resenaDe.id)) {
+            <button type="button" class="btn btn-outline-danger rounded-pill" (click)="eliminarResena()" [disabled]="procesando === resenaDe.id">Eliminar</button>
+          }
+        </div>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="resenaDe = null">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="guardarResena()" [disabled]="formResena.calificacion < 1 || procesando === resenaDe.id">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

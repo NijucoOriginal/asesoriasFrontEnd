@@ -1,320 +1,172 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AuthService } from '../../servicios/auth.service';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { UsersService } from '../../servicios/users.service';
-import { RedireccionService } from '../../servicios/redireccion.service';
-import { InmuebleServiceService } from '../../servicios/inmueble-service.service';
-import { InmuebleResponse } from '../../dto/inmueble-response';
-import { IdiomaService } from '../../servicios/idioma.service';
-import { ES } from '../../i18n/es';
-import { Subscription } from 'rxjs';
-import { DetalleInmuebleComponent } from '../detalle-inmueble/detalle-inmueble.component';
+import { AuthService } from '../../servicios/auth.service';
+import { AsesoriasService } from '../../servicios/asesorias.service';
+import { ChatService } from '../../servicios/chat.service';
+import { NotificacionService } from '../../servicios/notificacion.service';
+import { mensajeError } from '../../servicios/api-error';
+import { AsesoriaResponse, PerfilResponse } from '../../dto/modelos';
+
+const MAX_IMAGEN_MB = 20; // spring.servlet.multipart.max-file-size
 
 @Component({
   selector: 'app-perfil',
-  imports: [
-    FormsModule,
-    CommonModule,
-    ReactiveFormsModule,
-    DetalleInmuebleComponent
-  ],
   standalone: true,
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './perfil.component.html',
-  styleUrl: './perfil.component.css'
+  styleUrls: ['./perfil.component.css'],
 })
-export class PerfilComponent implements OnInit, OnDestroy {
-  // Lógica de Idioma
-  t: typeof ES;
-  private sub!: Subscription;
+export class PerfilComponent implements OnInit {
+  perfil: PerfilResponse | null = null;
+  cargando = true;
+  error: string | null = null;
 
-  // Propiedades del perfil
-  perfilForm!: FormGroup;
-  email = '';
-  nombre = '';
-  apellido = '';
-  documentoIdentidad = '';
-  telefono = '';
-  rol = '';
-  id='';
   editando = false;
-  mostrarConfirmacion: boolean = false;
+  guardando = false;
+  subiendoImagen = false;
+  desvinculando = false;
+  form: FormGroup;
 
-  errorMessage: string | null = null;
-  loading: boolean = false;
-
-  // Lógica de Inmuebles
-  propiedades: InmuebleResponse[] = [];
-  mostrarModalDetalle = false;
-  detalleInmueble: InmuebleResponse | null = null;
-
-
-  // Confirmación de eliminación (HEAD)
-  mostrarConfirmacionEliminar: boolean = false;
-  inmuebleAEliminar: InmuebleResponse | null = null;
+  resumen = { comoEstudiante: 0, comoTutor: 0, finalizadas: 0, enCurso: 0 };
 
   constructor(
-    private authService: AuthService,
-    private userService: UsersService,
-    private fb: FormBuilder,
-    private redireccionamiento: RedireccionService,
-    protected inmuebleService: InmuebleServiceService,
-    public idiomaService: IdiomaService
+    fb: FormBuilder,
+    private users: UsersService,
+    private auth: AuthService,
+    private asesorias: AsesoriasService,
+    private chat: ChatService,
+    private notificaciones: NotificacionService,
+    private router: Router
   ) {
-    // Inicialización de traducciones
-    this.t = idiomaService.t;
-
-    // Carga de datos iniciales del usuario
-    this.email = this.authService.getUserEmail() || '';
-    this.nombre = this.authService.obtenerNombreUsuario() || '';
-    this.apellido = this.authService.obtenerApellidoUsuario() || '';
-    this.telefono = this.authService.obtenerTelefonoUsuario() || '';
-    this.rol = this.authService.getRoles()[0] || 'USUARIO';
-    this.documentoIdentidad = this.authService.obtenerDocumentoUsuario() || '';
-
-    // Inicialización del formulario reactivo
-    this.perfilForm = this.fb.group({
-      nombreTemporal: [this.nombre, [Validators.required]],
-      apellidoTemporal: [this.apellido, [Validators.required]],
-      telefonoTemporal: [this.telefono, [Validators.required]],
-      documentoIdentidadTemporal: [this.documentoIdentidad, [Validators.required]]
+    this.form = fb.group({
+      nombre: ['', [Validators.required, Validators.maxLength(50)]],
+      apellido: ['', [Validators.required, Validators.maxLength(50)]],
+      telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{7,15}$/)]],
     });
   }
 
   ngOnInit(): void {
-    // 1. Suscripción a cambios de idioma
-    this.sub = this.idiomaService.traducciones$.subscribe(t => {
-      this.t = t;
+    this.cargar();
+  }
+
+  get activo(): boolean {
+    return this.perfil?.estado === 'ACTIVO';
+  }
+
+  get iniciales(): string {
+    return `${this.perfil?.nombre?.[0] ?? ''}${this.perfil?.apellido?.[0] ?? ''}`.toUpperCase();
+  }
+
+  cargar(): void {
+    this.cargando = true;
+    this.users.miPerfil().subscribe({
+      next: p => {
+        this.perfil = p;
+        this.cargando = false;
+        if (p.estado === 'ACTIVO') this.cargarResumen(p.id);
+      },
+      error: err => {
+        this.error = mensajeError(err, 'No se pudo cargar tu perfil.');
+        this.cargando = false;
+      },
     });
-
-    // 2. Carga de inmuebles vinculados al usuario
-    this.cargarPropiedades();
   }
 
-  ngOnDestroy(): void {
-    if (this.sub) {
-      this.sub.unsubscribe();
-    }
+  private cargarResumen(yo: number): void {
+    this.asesorias.listar().subscribe({
+      next: (lista: AsesoriaResponse[]) => {
+        this.resumen = {
+          comoEstudiante: lista.filter(a => a.participante.id === yo).length,
+          comoTutor: lista.filter(a => a.asesor.id === yo).length,
+          finalizadas: lista.filter(a => a.estado === 'FINALIZADA').length,
+          enCurso: lista.filter(a => ['PENDIENTE', 'CONTRAPROPUESTA', 'ACEPTADA'].includes(a.estado)).length,
+        };
+      },
+      error: () => {},
+    });
   }
 
-  cargarPropiedades() {
-    const correoUsuario = localStorage.getItem('userEmail') || this.email;
-    if (correoUsuario) {
-      this.inmuebleService.obtenerListaInmueblesUsuario(correoUsuario).subscribe({
-        next: (inmuebles) => {
-          this.propiedades = inmuebles;
-        },
-        error: (err) => {
-          console.error('Error al obtener propiedades:', err);
-        }
-      });
-    }
-  }
-
-  activarEdicion() {
+  editar(): void {
+    if (!this.perfil) return;
+    this.form.reset({ nombre: this.perfil.nombre, apellido: this.perfil.apellido, telefono: this.perfil.telefono });
     this.editando = true;
-    this.perfilForm.patchValue({
-      nombreTemporal: this.nombre,
-      apellidoTemporal: this.apellido,
-      telefonoTemporal: this.telefono,
-      documentoIdentidadTemporal: this.documentoIdentidad
-    });
   }
 
-  guardarCambios() {
-    if (this.perfilForm.valid) {
-      const { nombreTemporal, apellidoTemporal, telefonoTemporal, documentoIdentidadTemporal } = this.perfilForm.value;
-
-      this.userService.actualizarDatosUsuario(
-        this.email,
-        nombreTemporal,
-        apellidoTemporal,
-        telefonoTemporal,
-        documentoIdentidadTemporal
-      ).subscribe({
-        next: (response) => {
-          this.nombre = nombreTemporal;
-          this.apellido = apellidoTemporal;
-          this.telefono = telefonoTemporal;
-          this.documentoIdentidad = documentoIdentidadTemporal;
-          this.editando = false;
-
-          this.showAlert('success', this.t.perfil.actualizacionExitosa || 'Información actualizada.');
-          this.authService.cambiarDatosToken(response);
-          // Opcional: window.location.reload();
-        },
-        error: (err) => {
-          this.errorMessage = err.message || 'Error desconocido';
-          this.showAlert('error', 'Error: ' + this.errorMessage);
-        }
-      });
-    } else {
-      this.showAlert('error', "Ingrese todos los campos correctamente");
+  guardar(): void {
+    if (!this.perfil || this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
     }
-  }
-
-  cancelarEdicion() {
-    this.editando = false;
-  }
-
-  // --- GESTIÓN DE EMPRESA ---
-  desvincularEmpresa() {
-    this.mostrarConfirmacion = true;
-  }
-
-  cancelarDesvinculacion() {
-    this.mostrarConfirmacion = false;
-  }
-
-  confirmarDesvinculacion() {
-    this.loading = true;
-    this.mostrarConfirmacion = false;
-    this.userService.desvincular(this.email).subscribe({
+    const { nombre, apellido, telefono } = this.form.value;
+    this.guardando = true;
+    this.users.actualizarDatosUsuario(this.perfil.email, nombre.trim(), apellido.trim(), telefono.trim()).subscribe({
       next: () => {
-        this.loading = false;
-        this.showAlert('success', 'Usuario desvinculado exitosamente.');
-        this.authService.limpiarStorage();
-        this.redireccionamiento.redirigirAHome();
+        this.perfil = { ...this.perfil!, nombre: nombre.trim(), apellido: apellido.trim(), telefono: telefono.trim() };
+        this.guardando = false;
+        this.editando = false;
+        this.notificaciones.exito('Datos actualizados.');
       },
-      error: () => {
-        this.loading = false;
-        this.showAlert('error', 'Error al desvincular usuario');
-      }
+      error: err => {
+        this.guardando = false;
+        this.notificaciones.error(mensajeError(err, 'No se pudieron guardar los cambios.'));
+      },
     });
   }
 
-  // --- GESTIÓN DE INMUEBLES (ELIMINACIÓN) ---
-  preguntarEliminar(inmueble: InmuebleResponse) {
-    this.inmuebleAEliminar = inmueble;
-    this.mostrarConfirmacionEliminar = true;
+  onImagen(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0];
+    input.value = '';
+    if (!archivo || !this.perfil) return;
+    if (!archivo.type.startsWith('image/')) {
+      this.notificaciones.error('El archivo debe ser una imagen.');
+      return;
+    }
+    if (archivo.size > MAX_IMAGEN_MB * 1024 * 1024) {
+      this.notificaciones.error(`La imagen no puede superar ${MAX_IMAGEN_MB} MB.`);
+      return;
+    }
+    this.subiendoImagen = true;
+    this.users.actualizarImagen(archivo).subscribe({
+      next: url => {
+        this.perfil = { ...this.perfil!, imagenPerfil: url };
+        this.subiendoImagen = false;
+        this.notificaciones.exito('Foto de perfil actualizada.');
+      },
+      error: err => {
+        this.subiendoImagen = false;
+        this.notificaciones.error(mensajeError(err, 'No se pudo subir la imagen.'));
+      },
+    });
   }
 
-  cancelarEliminar() {
-    this.mostrarConfirmacionEliminar = false;
-    this.inmuebleAEliminar = null;
-  }
-
-  confirmarEliminar() {
-    if (!this.inmuebleAEliminar) return;
-
-    const id = this.inmuebleAEliminar.id;
-    this.inmuebleService.eliminarInmueble(id).subscribe({
+  desvincular(): void {
+    if (!this.perfil) return;
+    const ok = confirm(
+      'Al desactivar tu cuenta se rechazarán o cancelarán tus asesorías abiertas y no podrás usar la plataforma ' +
+        'hasta reactivarla. ¿Deseas continuar?'
+    );
+    if (!ok) return;
+    this.desvinculando = true;
+    this.users.desvincular(this.perfil.email).subscribe({
       next: () => {
-        this.propiedades = this.propiedades.filter(p => p.id !== id);
-        this.showAlert('success', 'Inmueble eliminado correctamente');
-        this.mostrarConfirmacionEliminar = false;
-        this.inmuebleAEliminar = null;
+        this.desvinculando = false;
+        this.notificaciones.info('Tu cuenta fue desactivada. Puedes reactivarla iniciando sesión de nuevo.');
+        this.chat.desconectarWebSocket();
+        this.auth.limpiarStorage();
+        this.router.navigate(['/']);
       },
-      error: (err) => {
-        console.error(err);
-        this.showAlert('error', 'No se pudo eliminar el inmueble');
-        this.mostrarConfirmacionEliminar = false;
-      }
+      error: err => {
+        this.desvinculando = false;
+        this.notificaciones.error(mensajeError(err, 'No se pudo desactivar la cuenta.'));
+      },
     });
   }
 
-
-  // Extrae el nombre de archivo desde una URL (ej: Cloudinary) y lo decodifica
-  getFileNameFromUrl(url: string | undefined | null): string {
-    if (!url) return '';
-    try {
-      // Intentar usar el constructor URL para obtener el pathname
-      const u = new URL(url);
-      let filename = u.pathname.split('/').pop() || '';
-      // Quitar parámetros si los hubiera (aunque URL.pathname no incluye query)
-      const qIdx = filename.indexOf('?');
-      if (qIdx !== -1) filename = filename.substring(0, qIdx);
-      return decodeURIComponent(filename);
-    } catch (e) {
-      // Fallback sencillo si la URL no es absoluta
-      const lastSlash = url.lastIndexOf('/');
-      let filename = lastSlash !== -1 ? url.substring(lastSlash + 1) : url;
-      const qIdx = filename.indexOf('?');
-      if (qIdx !== -1) filename = filename.substring(0, qIdx);
-      try { return decodeURIComponent(filename); } catch { return filename; }
-    }
+  campoInvalido(nombre: string): boolean {
+    const c = this.form.get(nombre);
+    return !!c && c.invalid && c.touched;
   }
-
-
-
-  showAlert(type: 'success' | 'error', message: string): void {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} mt-3`;
-    alertDiv.textContent = message;
-    alertDiv.style.position = 'fixed';
-    alertDiv.style.top = '20px';
-    alertDiv.style.right = '20px';
-    alertDiv.style.zIndex = '9999';
-    alertDiv.style.padding = '15px';
-    alertDiv.style.borderRadius = '5px';
-    alertDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-
-    if (type === 'success') {
-      alertDiv.style.backgroundColor = '#d4edda';
-      alertDiv.style.color = '#155724';
-      alertDiv.style.borderColor = '#c3e6cb';
-    } else {
-      alertDiv.style.backgroundColor = '#f8d7da';
-      alertDiv.style.color = '#721c24';
-      alertDiv.style.borderColor = '#f5c6cb';
-    }
-
-    document.body.appendChild(alertDiv);
-
-    // Eliminar la alerta después de 3 segundos
-    setTimeout(() => {
-      if (alertDiv.parentNode) {
-        alertDiv.parentNode.removeChild(alertDiv);
-      }
-    }, 3000);
-  }
-
-
-  volver() {
-    if(this.authService.getToken()==null)
-    {
-      this.redireccionamiento.redirigirAHome()
-    }
-    else
-    {
-      this.redireccionamiento.redirigirAHomeIngresado();
-      console.log("Redirigiendo a home ingresado"+this.authService.getUserEmail() );
-    }
-  }
-
-  abrirModalDetalles(inmueble: InmuebleResponse): void {
-    this.detalleInmueble = inmueble;
-    this.mostrarModalDetalle = true;
-  }
-
-  cerrarModalDetalles(): void {
-    this.mostrarModalDetalle = false;
-    this.detalleInmueble = null;
-  }
-  soloNumeros(event: KeyboardEvent): boolean {
-    const charCode = event.charCode;
-    return charCode >= 48 && charCode <= 57;
-  }
-
-  // Tutorías de ejemplo (quemadas en la aplicación)
-  tutoriasTomadas: { tutor: string; materia: string; fecha: string; horas: number }[] = [
-    { tutor: 'Carlos Andrés Gómez Ríos', materia: 'Bases de datos', fecha: '2026-09-12', horas: 2 },
-    { tutor: 'María Fernanda López Torres', materia: 'Cálculo diferencial', fecha: '2026-09-18', horas: 1.5 },
-    { tutor: 'Daniela Alejandra Ramírez Muñoz', materia: 'Farmacología', fecha: '2026-10-02', horas: 2 }
-  ];
-
-  tutoriasDadas: { materia: string; estudiante: string; fecha: string; horas: number }[] = [
-    { materia: 'Programación orientada a objetos', estudiante: 'Andrés Felipe Ruiz', fecha: '2026-08-25', horas: 2 },
-    { materia: 'Estructuras de datos', estudiante: 'Sofía Gallego', fecha: '2026-09-30', horas: 1.5 },
-    { materia: 'Estadística', estudiante: 'Juan Pablo Ortiz', fecha: '2026-10-14', horas: 2 }
-  ];
-
-  get totalHorasTomadas(): number {
-    return this.tutoriasTomadas.reduce((acc, t) => acc + t.horas, 0);
-  }
-
-  get totalHorasDadas(): number {
-    return this.tutoriasDadas.reduce((acc, t) => acc + t.horas, 0);
-  }
-
 }

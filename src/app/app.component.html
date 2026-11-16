@@ -1,7 +1,10 @@
-<app-header></app-header>
-<router-outlet></router-outlet>
-<!--<app-accesibilidad></app-accesibilidad>-->
+<app-navbar></app-navbar>
+<main class="contenido">
+  <router-outlet></router-outlet>
+</main>
+<app-accesibilidad></app-accesibilidad>
+@if (chatDisponible) {
+  <app-chat-flotante></app-chat-flotante>
+}
 <app-footer></app-footer>
-<!--<app-chatbot-ia></app-chatbot-ia>-->
-<!--<app-chat-flotante></app-chat-flotante>-->
-
+<app-toasts></app-toasts>

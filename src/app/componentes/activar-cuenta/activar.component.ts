@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
-import { ActivarCuentaService, ActivationResponse, ResendCodeResponse } from '../../servicios/activar-cuenta.service';
+import { ActivarCuentaService } from '../../servicios/activar-cuenta.service';
 import { IdiomaService } from '../../servicios/idioma.service';
 import { ES } from '../../i18n/es';
 import { Subscription } from 'rxjs';
@@ -122,8 +122,9 @@ export class ActivarComponent implements OnInit, OnDestroy {
         console.error('Error al activar la cuenta:', error);
         if (error.status === 0) {
           this.errorMessage = 'Error de conexión. Por favor, verifica tu conexión a internet.';
-        } else if (error.error && error.error.message) {
-          this.errorMessage = error.error.message;
+        } else if (typeof error.error === 'string' && error.error) {
+          // El backend responde texto plano: "Código de activación inválido o expirado."
+          this.errorMessage = error.error;
         } else if (error.status >= 500) {
           this.errorMessage = 'Error en el servidor. Por favor, inténtalo más tarde.';
         } else {
@@ -193,8 +194,8 @@ export class ActivarComponent implements OnInit, OnDestroy {
     }
 
     this.activarCuentaService.resendActivationCode(this.userEmail).subscribe({
-      next: (response: ResendCodeResponse) => {
-        this.showAlert('success', response.message || 'Se ha enviado un nuevo código a tu correo electrónico.');
+      next: (response: string) => {
+        this.showAlert('success', response || 'Se ha enviado un nuevo código a tu correo electrónico.');
       },
       error: (error) => {
         console.error('Error al reenviar el código:', error);

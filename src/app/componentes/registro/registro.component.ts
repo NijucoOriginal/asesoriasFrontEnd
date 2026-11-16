@@ -2,7 +2,7 @@ import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgClass, NgForOf, NgIf} from '@angular/common';
 import { UsersService } from '../../servicios/users.service';
-import { ErrorResponse } from '../../dto/error-response';
+import { mensajeError } from '../../servicios/api-error';
 import { Router, RouterLink } from '@angular/router';
 import { RedireccionService } from '../../servicios/redireccion.service';
 import { RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha';
@@ -183,15 +183,7 @@ export class RegistroComponent implements OnInit, OnDestroy {
         this.classResult = 'text-danger text-center fw-bold';
 
         // Capturar el mensaje real de ValueConflictException o error genérico
-        if (error.error && error.error.message) {
-          this.result = error.error.message;
-        } else if (error.error && error.error instanceof Array) {
-          this.result = error.error.map((item: ErrorResponse) => item.message).join(', ');
-        } else if (typeof error.error === 'string') {
-          this.result = error.error;
-        } else {
-          this.result = 'Error al registrar el usuario. El correo o cédula ya podrían estar en uso.';
-        }
+        this.result = mensajeError(error, 'Error al registrar el usuario. El correo o cédula ya podrían estar en uso.');
 
         this.cdr.detectChanges();
       }

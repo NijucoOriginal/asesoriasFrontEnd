@@ -1,81 +1,47 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RedireccionService } from '../../servicios/redireccion.service';
-import { IdiomaService } from '../../servicios/idioma.service';
-import { ES } from '../../i18n/es';
-import { Subscription } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { AuthService } from '../../servicios/auth.service';
+import { TutoresService } from '../../servicios/tutores.service';
+import { TutorResponse } from '../../dto/modelos';
+import { mensajeError } from '../../servicios/api-error';
+import { TutorCardComponent } from '../tutor-card/tutor-card.component';
 
-export interface TutorDestacado {
-  nombreCompleto: string;
-  carrera: string;
-  materias: string[];
-  foto: string;
-  horasTutoria: number;
-}
-
+/** Página principal (pública y con sesión). Muestra los tutores destacados reales del backend. */
 @Component({
   selector: 'app-inicio-default',
   standalone: true,
-  imports: [CommonModule],
+  imports: [RouterLink, TutorCardComponent],
   templateUrl: './inicio-default.component.html',
-  styleUrls: ['./inicio-default.component.css']
+  styleUrls: ['./inicio-default.component.css'],
 })
-export class InicioDefaultComponent implements OnInit, OnDestroy {
-  t: typeof ES;
-  private sub!: Subscription;
+export class InicioDefaultComponent implements OnInit {
+  destacados: TutorResponse[] = [];
+  totalTutores = 0;
+  cargando = true;
+  error: string | null = null;
 
-  tutoresDestacados: TutorDestacado[] = [
-    {
-      nombreCompleto: 'Carlos Andrés Gómez Ríos',
-      carrera: 'Ingeniería de Sistemas',
-      materias: ['Programación orientada a objetos', 'Bases de datos', 'Estructuras de datos'],
-      foto: 'https://randomuser.me/api/portraits/men/32.jpg',
-      horasTutoria: 120
-    },
-    {
-      nombreCompleto: 'María Fernanda López Torres',
-      carrera: 'Licenciatura en Matemáticas',
-      materias: ['Cálculo diferencial', 'Álgebra lineal', 'Estadística'],
-      foto: 'https://randomuser.me/api/portraits/women/44.jpg',
-      horasTutoria: 95
-    },
-    {
-      nombreCompleto: 'Laura Valentina Herrera Castaño',
-      carrera: 'Pedagogía Infantil',
-      materias: ['Psicología del desarrollo', 'Didáctica infantil', 'Literatura infantil'],
-      foto: 'https://randomuser.me/api/portraits/women/65.jpg',
-      horasTutoria: 80
-    },
-    {
-      nombreCompleto: 'Juan Esteban Moreno Ospina',
-      carrera: 'Química',
-      materias: ['Química orgánica', 'Química general', 'Fisicoquímica'],
-      foto: 'https://randomuser.me/api/portraits/men/45.jpg',
-      horasTutoria: 110
-    },
-    {
-      nombreCompleto: 'Daniela Alejandra Ramírez Muñoz',
-      carrera: 'Enfermería',
-      materias: ['Anatomía y fisiología', 'Farmacología', 'Fundamentos de enfermería'],
-      foto: 'https://randomuser.me/api/portraits/women/12.jpg',
-      horasTutoria: 70
-    }
-  ];
-
-  constructor(
-    protected redireccionamiento: RedireccionService,
-    public idiomaService: IdiomaService
-  ) {
-    this.t = idiomaService.t;
-  }
+  constructor(public auth: AuthService, private tutores: TutoresService) {}
 
   ngOnInit(): void {
-    this.sub = this.idiomaService.traducciones$.subscribe(t => {
-      this.t = t;
+    this.tutores.listar().subscribe({
+      next: lista => {
+        this.totalTutores = lista.length;
+        this.destacados = [...lista]
+          .sort((a, b) =>
+            (b.calificacionPromedio ?? 0) - (a.calificacionPromedio ?? 0) ||
+            b.totalResenas - a.totalResenas ||
+            b.horasTutoria - a.horasTutoria)
+          .slice(0, 6);
+        this.cargando = false;
+      },
+      error: err => {
+        this.error = mensajeError(err, 'No se pudieron cargar los tutores.');
+        this.cargando = false;
+      },
     });
   }
 
-  ngOnDestroy(): void {
-    this.sub?.unsubscribe();
+  get nombre(): string {
+    return this.auth.obtenerNombreUsuario() ?? '';
   }
 }

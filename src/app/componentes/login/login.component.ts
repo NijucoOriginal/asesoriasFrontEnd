@@ -103,6 +103,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
   captchaError: string | null = null;
+  /** true cuando el backend responde que la cuenta aún no se ha activado. */
+  cuentaPendiente = false;
   resolved(token: string | null) {
     this.captchaToken = token;
     this.captchaError = null;
@@ -123,11 +125,21 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.authService.login(email, contrasena, this.captchaToken).subscribe({
         next: () => {
           this.loading = false;
-          this.chatService.conectarWebSocket();
-          this.router.navigate(['/inicio']);
+          if (this.authService.estaInactivo()) {
+            this.router.navigate(['/reactivar']);
+            return;
+          }
+          const redirect = this.router.parseUrl(this.router.url).queryParams['redirect'];
+          const destino = typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : '/';
+          this.router.navigateByUrl(destino);
         },
-        error: () => {
+        error: (err: Error) => {
           this.loading = false;
+          // UserServiceImpl: "Debes activar tu cuenta antes de iniciar sesión."
+          this.cuentaPendiente = /activar tu cuenta/i.test(err?.message ?? '');
+          if (this.cuentaPendiente) {
+            localStorage.setItem('pendingActivationEmail', this.loginForm.value.email);
+          }
           this.captchaToken = null;
           this.recargarCaptcha(); // Reset visual del captcha tras error
         }

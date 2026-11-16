@@ -1,64 +1,24 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from './auth.service';
-@Injectable({
-  providedIn: 'root'
-})
+
+@Injectable({ providedIn: 'root' })
 export class RedireccionService {
   constructor(private router: Router) {}
 
-  /**
-   * Redirige al usuario según su rol.
-   * @param rol Lista de roles del usuario.
-   */
-  redirigirSegunRol(rol: string): void {
-    if (rol.includes('CLIENTE')) {
-      this.router.navigate(['/perfil']);
-    } else if (rol.includes('AGENTE')) {
-      this.router.navigate(['/ventanaAgente']);
-    } else {
-      this.router.navigate(['/unauthorized']);
-    }
-  }
-
-  redirigirALogin() {
-    this.router.navigate(['/login']);
-  }
-
-  redirigirARegistro() {
-    this.router.navigate(['/registro']);
-  }
-
-  redirigirARegistroInmueble() {
-    this.router.navigate(['/registroInmueble']);
-  }
-
-  redirigirAPerfil() {
+  /** Tras login: los usuarios activos van al inicio; los inactivos a reactivar su cuenta. */
+  redirigirSegunRol(_rol?: string): void {
     this.router.navigate(['/perfil']);
   }
 
-  redirigirAHome() {
-    this.router.navigate(['/']);
-  }
-
-  redirigirAHomeIngresado() {
-    this.router.navigate(['/inicio']);
-  }
-
-  redirigirAPoliticaDatos() {
-    this.router.navigate(['/politicaDatos']);
-  }
-  redirigirAConocenos() {
-    this.router.navigate(['/conocenos']);
-  }
-  redirigirAContactenos() {
-    this.router.navigate(['/contactenos']);
-  }
-  redirigirAMetricas() {
-    this.router.navigate(['/metricas-admin']);
-  }
-  redirigirACatalogo() {
-    this.router.navigate(['/catalogo']);
-  }
-
+  redirigirALogin() { this.router.navigate(['/login']); }
+  redirigirARegistro() { this.router.navigate(['/registro']); }
+  redirigirAPerfil() { this.router.navigate(['/perfil']); }
+  redirigirAHome() { this.router.navigate(['/']); }
+  redirigirAHomeIngresado() { this.router.navigate(['/']); }
+  redirigirAPoliticaDatos() { this.router.navigate(['/politicaDatos']); }
+  redirigirAConocenos() { this.router.navigate(['/conocenos']); }
+  redirigirAContactenos() { this.router.navigate(['/contactenos']); }
+  redirigirATutores() { this.router.navigate(['/tutores']); }
+  redirigirAAsesorias() { this.router.navigate(['/asesorias']); }
+  redirigirAReactivar() { this.router.navigate(['/reactivar']); }
 }
