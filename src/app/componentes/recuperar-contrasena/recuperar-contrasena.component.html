@@ -1,82 +1,48 @@
-<div class="auth-container">
+<div class="auth-page">
+  <div class="auth-card aparecer">
+    <app-auth-aside titulo="Recupera tu acceso"
+                    texto="Te enviaremos un código a tu correo para que crees una contraseña nueva."></app-auth-aside>
 
-  <div class="back-button">
-    <button type="button" routerLink="/login" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> {{ t.recuperarContrasena.volver }}
-    </button>
-  </div>
+    <div class="auth-body">
+      <a routerLink="/login" class="btn-volver"><i class="bi bi-arrow-left"></i> Volver a iniciar sesión</a>
 
-  <div class="brand-header">
-    <div class="brand-logo">EDÉN</div>
-    <div class="brand-subtitle">{{ t.comun.inmobiliaria }}</div>
-  </div>
-
-  <h2 class="text-center mb-3">{{ t.recuperarContrasena.titulo }}</h2>
-
-  <p class="text-center text-muted mb-4">
-    {{ t.recuperarContrasena.subtitulo }}
-  </p>
-
-  <div class="instructions">
-    <p class="mb-2"><strong>{{ t.recuperarContrasena.instrucciones }}</strong></p>
-    <ul>
-      <li>{{ t.recuperarContrasena.instruccion1 }}</li>
-      <li>{{ t.recuperarContrasena.instruccion2 }}</li>
-      <li>{{ t.recuperarContrasena.instruccion3 }}</li>
-    </ul>
-  </div>
-
-  <div class="recovery-icon">
-    <i class="bi bi-shield-lock"></i>
-  </div>
-
-  <div class="step-indicator">
-    <div class="step active">1</div>
-    <div class="step">2</div>
-  </div>
-
-  <form [formGroup]="form" (ngSubmit)="solicitarCodigo()">
-
-    <div class="mb-3">
-      <label class="form-label">{{ t.recuperarContrasena.correoElectronico }}</label>
-
-      <input
-        type="email"
-        class="form-control"
-        formControlName="email"
-        [placeholder]="t.recuperarContrasena.placeholderEmail"
-      >
-
-      <div class="text-danger mt-1"
-           *ngIf="email?.invalid && (email?.touched || email?.dirty)">
-        {{ t.recuperarContrasena.errorCorreo }}
+      <div class="pasos-progreso" aria-label="Paso 1 de 2">
+        <span class="activo">1</span><div class="linea"></div><span>2</span>
       </div>
+
+      <div class="auth-icono"><i class="bi bi-shield-lock"></i></div>
+      <h1>Recuperar contraseña</h1>
+      <p class="subtitulo">Escribe el correo con el que te registraste y te enviaremos un código de verificación.</p>
+
+      <form [formGroup]="form" (ngSubmit)="solicitarCodigo()" novalidate>
+        <label for="email" class="form-label">Correo electrónico</label>
+        <div class="input-icono">
+          <i class="bi bi-envelope"></i>
+          <input id="email" type="email" class="form-control" formControlName="email" autocomplete="email"
+                 placeholder="tu-correo@ejemplo.com" [class.is-invalid]="email?.invalid && email?.touched">
+        </div>
+        @if (email?.invalid && email?.touched) {
+          <div class="campo-error">Escribe un correo válido.</div>
+        }
+
+        <div class="captcha-centro">
+          @if (captchaActivo) {
+            <re-captcha (resolved)="onCaptchaResolved($event)" [theme]="temaActual"></re-captcha>
+          }
+        </div>
+        @if (mostrarAlerta && !captchaToken) {
+          <div class="campo-error text-center mb-2"><i class="bi bi-exclamation-circle me-1"></i>Completa la verificación de seguridad.</div>
+        }
+
+        <button type="submit" class="btn btn-primary w-100 py-2" [disabled]="isSubmitting">
+          @if (isSubmitting) { <span class="spinner-border spinner-border-sm me-2"></span> }
+          Enviar código
+        </button>
+      </form>
+
+      <p class="auth-footer">
+        ¿Ya tienes un código? <a routerLink="/cambiar-contrasena" class="link-clickable">Cambiar contraseña</a>
+      </p>
     </div>
-
-    <div class="mb-3 d-flex justify-content-center">
-      @if (captchaActivo) {
-        <re-captcha
-          (resolved)="onCaptchaResolved($event)"
-          [theme]="temaActual">
-        </re-captcha>
-      }
-    </div>
-
-    <div class="alert alert-warning py-2 mb-3" *ngIf="mostrarAlerta">
-      <i class="bi bi-exclamation-triangle me-2"></i>
-      <span *ngIf="email?.invalid">{{ t.recuperarContrasena.errorCorreo }}</span>
-      <span *ngIf="email?.valid && !captchaToken">{{ t.recuperarContrasena.errorCaptcha || 'Por favor, completa la verificación de seguridad.' }}</span>
-    </div>
-
-    <button type="submit" class="btn btn-primary w-100" [disabled]="isSubmitting || !captchaToken">
-      {{ isSubmitting ? t.recuperarContrasena.enviando : t.recuperarContrasena.enviarCodigo }}
-    </button>
-
-  </form>
-
-  <div class="auth-footer">
-    {{ t.recuperarContrasena.recuerdas }}
-    <a routerLink="/login">{{ t.recuperarContrasena.iniciaSesion }}</a>
   </div>
-
 </div>

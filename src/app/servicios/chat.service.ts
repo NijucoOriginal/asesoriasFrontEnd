@@ -170,10 +170,11 @@ export class ChatService implements OnDestroy {
       });
   }
 
-  enviarMensaje(request: EnviarMensajeRequest): void {
+  /** Envía por WebSocket. Devuelve false si no hay conexión (el mensaje no se envió). */
+  enviarMensaje(request: EnviarMensajeRequest): boolean {
     if (!this.stompClient?.connected) {
-      console.warn('WebSocket no conectado');
-      return;
+      this.conectarWebSocket();
+      return false;
     }
     this.stompClient.publish({
       destination: '/app/chat.enviar',
@@ -202,6 +203,12 @@ export class ChatService implements OnDestroy {
         mensajes: [...activa.mensajes, mensajeOptimista],
       });
     }
+    return true;
+  }
+
+  /** true si el WebSocket está conectado y se pueden enviar mensajes. */
+  get estaConectado(): boolean {
+    return !!this.stompClient?.connected;
   }
 
   volverALista(): void {

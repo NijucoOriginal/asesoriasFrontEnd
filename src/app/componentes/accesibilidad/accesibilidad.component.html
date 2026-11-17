@@ -1,84 +1,55 @@
-<!-- Botón flotante -->
-<button class="accessibility-btn" (click)="MostrarMenu()">
-  <i class="fa-solid fa-universal-access"></i>
+<button class="accessibility-btn" type="button" (click)="MostrarMenu()"
+        [attr.aria-expanded]="menuVisible" [attr.aria-label]="t.accesibilidad.titulo">
+  <i class="bi" [class.bi-universal-access-circle]="!menuVisible" [class.bi-x-lg]="menuVisible"></i>
 </button>
 
-<!-- Menú de accesibilidad -->
-<div class="accessibility-menu" *ngIf="menuVisible">
-  <h3 class="menu-title">{{ t.accesibilidad.titulo }}
-    <i class="fa-solid fa-brain"></i>
-  </h3>
+@if (menuVisible) {
+  <section class="accessibility-menu" role="dialog" [attr.aria-label]="t.accesibilidad.titulo">
+    <header class="menu-header">
+      <h2 class="menu-title"><i class="bi bi-universal-access"></i> {{ t.accesibilidad.titulo }}</h2>
+      <button type="button" class="btn-cerrar" (click)="MostrarMenu()" aria-label="Cerrar"><i class="bi bi-x-lg"></i></button>
+    </header>
 
-  <!-- Control de tamaño de texto -->
-  <div class="text-size-control">
-    <label for="textSize">{{ t.accesibilidad.tamanoTexto }}</label>
-    <div class="slider-labels">
-      <span>{{ t.accesibilidad.pequeno }}</span>
-      <span>{{ (zoom * 100) | number: '1.0-0' }}%</span>
-      <span>{{ t.accesibilidad.grande }}</span>
+    <!-- Tamaño de texto -->
+    <div class="bloque">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <label for="textSize" class="etiqueta">{{ t.accesibilidad.tamanoTexto }}</label>
+        <span class="valor">{{ (zoom * 100) | number: '1.0-0' }}%</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button type="button" class="btn-zoom" (click)="cambiarZoom(-0.1)" [disabled]="zoom <= 0.8" aria-label="Reducir texto">A−</button>
+        <input id="textSize" type="range" class="form-range" min="0.8" max="1.5" step="0.1" [(ngModel)]="zoom" (input)="actualizarZoom()">
+        <button type="button" class="btn-zoom grande" (click)="cambiarZoom(0.1)" [disabled]="zoom >= 1.5" aria-label="Aumentar texto">A+</button>
+      </div>
     </div>
-    <input
-      id="textSize"
-      type="range"
-      min="0.8"
-      max="1.5"
-      step="0.1"
-      [(ngModel)]="zoom"
-      (input)="actualizarZoom()"
-    />
-  </div>
 
-
-
-  <!-- Switch de modo oscuro -->
-  <div class="switch-container">
-    <label for="oscuroSwitch">{{ t.accesibilidad.modoOscuro }}
-
-      @if (modoOscuro)
-      {
-        <i class="fa-solid fa-moon"></i>
-      }
-      @else
-      {
-
-        <i class="fa-solid fa-sun"></i>
-
-      }
+    <!-- Modo oscuro -->
+    <label class="bloque fila-switch" for="oscuroSwitch">
+      <span><i class="bi" [class.bi-moon-stars-fill]="modoOscuro" [class.bi-sun-fill]="!modoOscuro"></i> {{ t.accesibilidad.modoOscuro }}</span>
+      <span class="form-check form-switch m-0">
+        <input id="oscuroSwitch" class="form-check-input" type="checkbox" role="switch" [(ngModel)]="modoOscuro" (change)="CambiarModoOscuro()">
+      </span>
     </label>
-    <label class="switch">
-      <input
-        id="oscuroSwitch"
-        type="checkbox"
-        [(ngModel)]="modoOscuro"
-        (change)="CambiarModoOscuro()"
-      />
-      <span class="slider"></span>
-    </label>
-  </div>
 
-  <!-- Estado visual -->
-  <p>{{ t.accesibilidad.modoOscuro }}: {{ modoOscuro ? t.accesibilidad.activado : t.accesibilidad.desactivado }}</p>
-
-  <!-- Selector de idioma -->
-  <div class="language-control">
-    <label class="language-label">{{ t.accesibilidad.idioma }}
-      <i class="fa-solid fa-globe"></i>
+    <!-- Alto contraste -->
+    <label class="bloque fila-switch" for="contrasteSwitch">
+      <span><i class="bi bi-circle-half"></i> {{ t.accesibilidad.altoContraste }}</span>
+      <span class="form-check form-switch m-0">
+        <input id="contrasteSwitch" class="form-check-input" type="checkbox" role="switch" [(ngModel)]="altoContraste" (change)="CambiarContraste()">
+      </span>
     </label>
-    <div class="language-buttons">
-      <button
-        class="lang-btn"
-        [class.active]="idiomaSeleccionado === 'es'"
-        (click)="idiomaSeleccionado = 'es'; cambiarIdioma()"
-      >
-        🇨🇴 {{ t.accesibilidad.espanol }}
-      </button>
-      <button
-        class="lang-btn"
-        [class.active]="idiomaSeleccionado === 'en'"
-        (click)="idiomaSeleccionado = 'en'; cambiarIdioma()"
-      >
-        🇺🇸 {{ t.accesibilidad.ingles }}
-      </button>
+
+    <!-- Idioma -->
+    <div class="bloque">
+      <span class="etiqueta d-block mb-2"><i class="bi bi-translate"></i> {{ t.accesibilidad.idioma }}</span>
+      <div class="language-buttons">
+        <button type="button" class="lang-btn" [class.active]="idiomaSeleccionado === 'es'" (click)="cambiarIdioma('es')">{{ t.accesibilidad.espanol }}</button>
+        <button type="button" class="lang-btn" [class.active]="idiomaSeleccionado === 'en'" (click)="cambiarIdioma('en')">{{ t.accesibilidad.ingles }}</button>
+      </div>
     </div>
-  </div>
-</div>
+
+    <button type="button" class="btn btn-light btn-sm w-100" (click)="restablecer()">
+      <i class="bi bi-arrow-counterclockwise me-1"></i> Restablecer
+    </button>
+  </section>
+}

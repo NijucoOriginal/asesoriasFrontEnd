@@ -1,56 +1,49 @@
-<main class="politica-container">
-  <section class="hero-section">
-    <div class="hero-content">
-      <h1>{{ t.politicaDatos.titulo }}</h1>
-      <p>{{ t.politicaDatos.subtitulo }}</p>
-    </div>
+<div class="container pb-5 aparecer">
+  <section class="banda-hero">
+    <h1 class="h2 fw-bold mb-2">{{ t.politicaDatos.titulo }}</h1>
+    <p class="mb-0">{{ t.politicaDatos.subtitulo }}</p>
   </section>
 
-  <section class="politica-content">
-    <h2>{{ t.politicaDatos.titulos.introduccion }}</h2>
-    <p>{{ t.politicaDatos.introduccion }}</p>
+  <div class="row g-4 mt-1">
+    <nav class="col-lg-3 d-none d-lg-block" aria-label="Secciones de la política">
+      <div class="tarjeta indice">
+        <h2 class="h6 text-uppercase text-muted mb-3">Contenido</h2>
+        <ol>
+          @for (s of secciones; track s.id) {
+            <li><a [href]="'politicaDatos#' + s.id" (click)="ir($event, s.id)">{{ s.titulo }}</a></li>
+          }
+        </ol>
+      </div>
+    </nav>
 
-    <h2>{{ t.politicaDatos.titulos.alcance }}</h2>
-    <p>{{ t.politicaDatos.alcance }}</p>
+    <article class="col-lg-9">
+      <div class="tarjeta politica">
+        @for (s of secciones; track s.id) {
+          <section [id]="s.id">
+            <h2>{{ s.titulo }}</h2>
+            @if (s.id === 'definiciones') {
+              <dl>
+                @for (def of t.politicaDatos.definiciones; track def.termino) {
+                  <dt>{{ def.termino }}</dt>
+                  <dd>{{ def.descripcion }}</dd>
+                }
+              </dl>
+            } @else {
+              <p>{{ s.texto }}</p>
+            }
+          </section>
+        }
 
-    <h2>{{ t.politicaDatos.titulos.definiciones }}</h2>
-    <ul>
-      <li *ngFor="let def of t.politicaDatos.definiciones">
-        <strong>{{ def.termino }}</strong> {{ def.descripcion }}
-      </li>
-    </ul>
+        <div class="firma">
+          <p class="mb-1">{{ t.politicaDatos.ultimaActualizacion }}</p>
+          <p class="mb-1 fw-semibold">{{ t.politicaDatos.subtitulo }}</p>
+          <p class="mb-0 fst-italic">{{ t.politicaDatos.lema }}</p>
+        </div>
 
-    <h2>{{ t.politicaDatos.titulos.principios }}</h2>
-    <p>{{ t.politicaDatos.principios }}</p>
-
-    <h2>{{ t.politicaDatos.titulos.finalidades }}</h2>
-    <p>{{ t.politicaDatos.finalidades }}</p>
-
-    <h2>{{ t.politicaDatos.titulos.derechos }}</h2>
-    <p>{{ t.politicaDatos.derechos }}</p>
-
-    <h2>{{ t.politicaDatos.titulos.procedimiento }}</h2>
-    <p>{{ t.politicaDatos.procedimiento }}</p>
-
-    <h2>{{ t.politicaDatos.titulos.seguridad }}</h2>
-    <p>{{ t.politicaDatos.seguridad }}</p>
-
-    <h2>{{ t.politicaDatos.titulos.transferencia }}</h2>
-    <p>{{ t.politicaDatos.transferencia }}</p>
-
-    <h2>{{ t.politicaDatos.titulos.vigencia }}</h2>
-    <p>{{ t.politicaDatos.vigencia }}</p>
-
-    <div class="firma">
-      <p>{{ t.politicaDatos.ultimaActualizacion }}</p>
-      <p>{{ t.politicaDatos.subtitulo }}</p>
-      <p>{{ t.politicaDatos.lema }}</p>
-    </div>
-
-    <div class="volver-container">
-      <button class="btn-volver" (click)="redirigirAlInicioMetodo()">
-        <i class="fa-solid fa-arrow-left"></i> {{ t.politicaDatos.volver }}
-      </button>
-    </div>
-  </section>
-</main>
+        <button class="btn btn-outline-primary mt-4" (click)="redirigirAlInicioMetodo()">
+          <i class="bi bi-arrow-left me-1"></i>{{ t.politicaDatos.volver }}
+        </button>
+      </div>
+    </article>
+  </div>
+</div>

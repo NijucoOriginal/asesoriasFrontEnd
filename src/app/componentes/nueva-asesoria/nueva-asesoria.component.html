@@ -1,66 +1,149 @@
-<div class="container py-4" style="max-width: 720px;">
-  <a routerLink="/tutores" class="btn btn-outline-secondary rounded-pill mb-3">
-    <i class="bi bi-arrow-left"></i> Volver a tutores
-  </a>
-
-  <h2 class="section-title">Solicitar asesoría</h2>
-  <p class="text-muted" *ngIf="tutorNombre">Con {{ tutorNombre }}</p>
+<div class="container pb-5 aparecer">
+  <header class="page-header">
+    <a [routerLink]="['/tutores', tutorId]" class="btn-volver"><i class="bi bi-arrow-left"></i> Volver al tutor</a>
+    <h1>Solicitar asesoría</h1>
+    <p>Propón la materia, el horario y el precio. {{ tutor?.nombre || 'El tutor' }} podrá aceptar, rechazar o contraproponer.</p>
+  </header>
 
   @if (cargando) {
     <div class="text-center py-5"><div class="spinner-border text-success"></div></div>
   } @else if (error) {
-    <div class="alert alert-danger">{{ error }}</div>
+    <div class="tarjeta vacio">
+      <i class="bi bi-exclamation-circle"></i>
+      <h5>{{ error }}</h5>
+      <a routerLink="/tutores" class="btn btn-primary mt-2">Ver otros tutores</a>
+    </div>
   } @else if (materias.length === 0) {
-    <div class="alert alert-warning">Este tutor no tiene materias disponibles por ahora.</div>
+    <div class="tarjeta vacio">
+      <i class="bi bi-journal-x"></i>
+      <h5>Este tutor no tiene materias disponibles por ahora</h5>
+      <a routerLink="/tutores" class="btn btn-primary mt-2">Ver otros tutores</a>
+    </div>
   } @else {
-    <form (ngSubmit)="enviar()" class="card card-body">
-      <div class="mb-3">
-        <label class="form-label" for="materia">Materia</label>
-        <select id="materia" class="form-select" name="materia" [(ngModel)]="form.materiaId" (ngModelChange)="onMateriaChange()">
-          <option [ngValue]="null" disabled>Elige una materia</option>
-          @for (m of materias; track m.id) {
-            <option [ngValue]="m.id">{{ m.nombre }}</option>
-          }
-        </select>
-      </div>
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <form (ngSubmit)="enviar()" novalidate>
+          <!-- 1. Materia -->
+          <section class="tarjeta paso">
+            <h2 class="tarjeta-titulo"><span class="num">1</span>¿Qué materia necesitas?</h2>
+            <div class="opciones">
+              @for (m of materias; track m.id) {
+                <button type="button" class="opcion" [class.activa]="form.materiaId === m.id" (click)="seleccionarMateria(m.id)"
+                        [attr.aria-pressed]="form.materiaId === m.id">
+                  <i class="bi" [class.bi-check-circle-fill]="form.materiaId === m.id" [class.bi-journal-text]="form.materiaId !== m.id"></i>
+                  <span>
+                    {{ m.nombre }}
+                    <small>{{ m.temas.length ? m.temas.length + (m.temas.length === 1 ? ' tema' : ' temas') : 'Tema libre' }}</small>
+                  </span>
+                </button>
+              }
+            </div>
+            @if (intentoEnviar && errores.materia) { <div class="campo-error">{{ errores.materia }}</div> }
 
-      @if (form.materiaId && temasDisponibles.length) {
-        <div class="mb-3">
-          <label class="form-label">Temas <span class="text-muted small">(opcional)</span></label>
-          <div class="d-flex flex-wrap gap-2">
-            @for (t of temasDisponibles; track t.id) {
-              <label class="chip-tema">
-                <input type="checkbox" [checked]="form.temasIds.includes(t.id)"
-                       (change)="toggleTema(t.id, $any($event.target).checked)">
-                {{ t.nombre }}
-              </label>
+            @if (temasDisponibles.length) {
+              <div class="mt-3">
+                <label class="form-label">Temas que quieres repasar <span class="text-muted fw-normal">(opcional)</span></label>
+                <div class="d-flex flex-wrap gap-2">
+                  @for (t of temasDisponibles; track t.id) {
+                    <label class="chip chip-check" [class.activo]="form.temasIds.includes(t.id)">
+                      <input type="checkbox" [checked]="form.temasIds.includes(t.id)" (change)="toggleTema(t.id)">
+                      @if (form.temasIds.includes(t.id)) { <i class="bi bi-check-lg"></i> }
+                      {{ t.nombre }}
+                    </label>
+                  }
+                </div>
+              </div>
             }
+          </section>
+
+          <!-- 2. Horario -->
+          <section class="tarjeta paso mt-3">
+            <h2 class="tarjeta-titulo"><span class="num">2</span>¿Cuándo?</h2>
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <label class="form-label" for="fecha">Día</label>
+                <input id="fecha" type="date" class="form-control" name="fecha" [min]="hoy" [(ngModel)]="form.fecha">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label" for="hora">Hora de inicio</label>
+                <input id="hora" type="time" class="form-control" name="hora" step="900" [(ngModel)]="form.hora">
+              </div>
+            </div>
+            <label class="form-label mt-3">Duración</label>
+            <div class="d-flex flex-wrap gap-2">
+              @for (d of duraciones; track d.minutos) {
+                <label class="chip chip-check" [class.activo]="form.duracion === d.minutos">
+                  <input type="radio" name="duracion" [value]="d.minutos" [(ngModel)]="form.duracion">{{ d.texto }}
+                </label>
+              }
+            </div>
+            @if (intentoEnviar && errores.fecha) { <div class="campo-error">{{ errores.fecha }}</div> }
+          </section>
+
+          <!-- 3. Precio -->
+          <section class="tarjeta paso mt-3">
+            <h2 class="tarjeta-titulo"><span class="num">3</span>¿Cuánto propones pagar?</h2>
+            <div class="input-icono">
+              <i class="bi bi-currency-dollar"></i>
+              <input type="number" class="form-control precio" name="precio" min="1000" step="1000" inputmode="numeric"
+                     placeholder="30000" [(ngModel)]="form.precio" aria-label="Precio en pesos colombianos">
+            </div>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              @for (p of preciosSugeridos; track p) {
+                <button type="button" class="chip chip-check" [class.activo]="form.precio === p" (click)="form.precio = p">
+                  {{ p | currency:'COP':'symbol-narrow':'1.0-0' }}
+                </button>
+              }
+            </div>
+            <div class="form-text">Precio total por la asesoría, en pesos colombianos. El tutor puede contraproponer.</div>
+            @if (intentoEnviar && errores.precio) { <div class="campo-error">{{ errores.precio }}</div> }
+          </section>
+
+          <div class="d-flex justify-content-end gap-2 mt-3 d-lg-none">
+            <a [routerLink]="['/tutores', tutorId]" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary" [disabled]="enviando">
+              @if (enviando) { <span class="spinner-border spinner-border-sm me-1"></span> } Enviar solicitud
+            </button>
           </div>
-        </div>
-      }
-
-      <div class="row g-3 mb-3">
-        <div class="col-sm-6">
-          <label class="form-label" for="inicio">Inicio</label>
-          <input id="inicio" type="datetime-local" class="form-control" name="inicio" [min]="minFecha" [(ngModel)]="form.inicio" required>
-        </div>
-        <div class="col-sm-6">
-          <label class="form-label" for="cierre">Cierre</label>
-          <input id="cierre" type="datetime-local" class="form-control" name="cierre" [min]="form.inicio || minFecha" [(ngModel)]="form.cierre" required>
-        </div>
+        </form>
       </div>
 
-      <div class="mb-3">
-        <label class="form-label" for="precio">Precio propuesto (COP)</label>
-        <input id="precio" type="number" min="1" step="1000" class="form-control" name="precio" [(ngModel)]="form.precio" required>
-      </div>
+      <!-- Resumen -->
+      <aside class="col-lg-4">
+        <div class="tarjeta resumen">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            @if (tutor?.imagenPerfil) {
+              <img [src]="tutor!.imagenPerfil" alt="" class="foto-tutor">
+            } @else {
+              <span class="avatar-iniciales foto-tutor">{{ iniciales }}</span>
+            }
+            <div>
+              <div class="fw-bold">{{ nombreTutor }}</div>
+              <div class="small text-muted">{{ tutor?.carrera || 'Tutor' }}</div>
+              @if (tutor?.calificacionPromedio != null) {
+                <app-estrellas [valor]="tutor!.calificacionPromedio!"></app-estrellas>
+                <span class="small text-muted ms-1">{{ tutor!.calificacionPromedio | number:'1.1-1' }}</span>
+              }
+            </div>
+          </div>
 
-      <div class="d-flex justify-content-end gap-2">
-        <a routerLink="/tutores" class="btn btn-outline-secondary rounded-pill">Cancelar</a>
-        <button type="submit" class="btn btn-primary" [disabled]="enviando">
-          {{ enviando ? 'Enviando...' : 'Enviar solicitud' }}
-        </button>
-      </div>
-    </form>
+          <h3 class="h6 text-uppercase text-muted mb-3">Resumen</h3>
+          <dl class="mb-0">
+            <div><dt>Materia</dt><dd>{{ materiaSeleccionada?.nombre || '—' }}</dd></div>
+            @if (form.temasIds.length) {
+              <div><dt>Temas</dt><dd>{{ form.temasIds.length }} {{ form.temasIds.length === 1 ? 'tema' : 'temas' }}</dd></div>
+            }
+            <div><dt>Día</dt><dd>{{ inicio ? (inicio | date:'EEEE d MMM') : '—' }}</dd></div>
+            <div><dt>Horario</dt><dd>{{ inicio ? (inicio | date:'h:mm a') + ' – ' + (cierre | date:'h:mm a') : '—' }}</dd></div>
+            <div class="total"><dt>Precio</dt><dd>{{ form.precio ? (form.precio | currency:'COP':'symbol-narrow':'1.0-0') : '—' }}</dd></div>
+          </dl>
+
+          <button type="button" class="btn btn-primary w-100 mt-3 d-none d-lg-block" (click)="enviar()" [disabled]="enviando">
+            @if (enviando) { <span class="spinner-border spinner-border-sm me-1"></span> } Enviar solicitud
+          </button>
+          <p class="small text-muted mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>Si el tutor no responde a tiempo, la solicitud expira automáticamente.</p>
+        </div>
+      </aside>
+    </div>
   }
 </div>

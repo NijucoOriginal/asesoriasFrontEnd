@@ -1,103 +1,86 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, AbstractControl, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { NgClass } from '@angular/common';
 import { AuthService } from '../../servicios/auth.service';
-import { NgIf, NgClass } from '@angular/common';
-import { IdiomaService } from '../../servicios/idioma.service';
-import { ES } from '../../i18n/es';
-import { Subscription } from 'rxjs';
+import { mensajeError } from '../../servicios/api-error';
+import { AuthAsideComponent } from '../auth-aside/auth-aside.component';
+import { CodigoInputComponent } from '../codigo-input/codigo-input.component';
 
+/** Paso 2 de la recuperación: código + contraseña nueva (POST /api/auth/recuperar/cambiar). */
 @Component({
   selector: 'app-cambiar-contrasena',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgIf, NgClass],
+  imports: [ReactiveFormsModule, FormsModule, RouterLink, NgClass, AuthAsideComponent, CodigoInputComponent],
   templateUrl: './cambiar-contrasena.component.html',
-  styleUrls: ['./cambiar-contrasena.component.css']
 })
-export class CambiarContrasenaComponent implements OnInit, OnDestroy {
-
+export class CambiarContrasenaComponent implements OnInit {
   form!: FormGroup;
+  email = '';
   isSubmitting = false;
-  submitAttempted = false;
-
-  result = '';
-  classResult = 'success';
-
+  exito = false;
+  error = '';
   verContra = false;
   verConfirmContra = false;
-  t: typeof ES;
-  private sub!: Subscription;
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    public idiomaService: IdiomaService
-  ) {
-    this.t = idiomaService.t;
-  }
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    this.sub = this.idiomaService.traducciones$.subscribe(t => {
-      this.t = t;
-    });
-
-    this.form = this.fb.group({
-      codigo: ['', Validators.required],
-      nuevaContrasena: ['', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/)
-      ]],
-      confirmarContrasena: ['', Validators.required]
-    }, { validators: this.passwordsMatchValidator });
+    this.email = localStorage.getItem('recoveryEmail') ?? '';
+    this.form = this.fb.group(
+      {
+        codigo: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+        nuevaContrasena: [
+          '',
+          [Validators.required, Validators.maxLength(100), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/)],
+        ],
+        confirmarContrasena: ['', Validators.required],
+      },
+      { validators: (f: AbstractControl) => (f.get('nuevaContrasena')?.value === f.get('confirmarContrasena')?.value ? null : { passwordsMismatch: true }) }
+    );
   }
 
-  ngOnDestroy(): void {
-    this.sub?.unsubscribe();
+  get requisitos(): { texto: string; ok: boolean }[] {
+    const v: string = this.form.get('nuevaContrasena')?.value ?? '';
+    return [
+      { texto: 'Mínimo 8 caracteres', ok: v.length >= 8 },
+      { texto: 'Una mayúscula', ok: /[A-Z]/.test(v) },
+      { texto: 'Una minúscula', ok: /[a-z]/.test(v) },
+      { texto: 'Un número', ok: /\d/.test(v) },
+      { texto: 'Un símbolo', ok: /[^a-zA-Z0-9]/.test(v) },
+    ];
   }
 
-  passwordsMatchValidator(form: AbstractControl) {
-    const pass = form.get('nuevaContrasena')?.value;
-    const confirm = form.get('confirmarContrasena')?.value;
-    return pass === confirm ? null : { passwordsMismatch: true };
+  setCodigo(codigo: string): void {
+    this.form.get('codigo')?.setValue(codigo);
+    this.form.get('codigo')?.markAsTouched();
+    this.error = '';
   }
 
-  cambiarContrasena() {
-    this.submitAttempted = true;
-
+  cambiarContrasena(): void {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email.trim())) {
+      this.error = 'Escribe el correo al que llegó el código.';
+      return;
+    }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.error = this.form.get('codigo')?.invalid ? 'Ingresa los 6 caracteres del código.' : '';
       return;
     }
-
-    const email = localStorage.getItem('recoveryEmail');
-    if (!email) {
-      this.result = 'No se encontró el correo';
-      this.classResult = 'text-danger';
-      return;
-    }
-
     this.isSubmitting = true;
-    this.result = '';
-    this.authService.cambiarContrasenaConCodigo(email, this.form.value.codigo, this.form.value.nuevaContrasena)
-      .subscribe({
-        next: () => {
-          this.isSubmitting = false;
-          localStorage.removeItem('recoveryEmail');
-          this.result = 'Contraseña cambiada correctamente. Redirigiendo al login...';
-          this.classResult = 'success';
-
-          setTimeout(() => this.router.navigate(['/login']), 2000);
-        },
-        error: (error) => {
-          this.isSubmitting = false;
-          this.result = error?.error?.message || 'Error al cambiar la contraseña';
-          this.classResult = 'text-danger';
-        }
-      });
+    this.error = '';
+    const { codigo, nuevaContrasena } = this.form.value;
+    this.authService.cambiarContrasenaConCodigo(this.email.trim(), codigo, nuevaContrasena).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.exito = true;
+        localStorage.removeItem('recoveryEmail');
+        setTimeout(() => this.router.navigate(['/login']), 2200);
+      },
+      error: err => {
+        this.isSubmitting = false;
+        this.error = mensajeError(err, 'Código inválido o expirado.');
+      },
+    });
   }
-
-  mostrarContrasenia() { this.verContra = !this.verContra; }
-  mostrarConfirmContrasenia() { this.verConfirmContra = !this.verConfirmContra; }
 }

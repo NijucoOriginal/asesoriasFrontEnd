@@ -1,53 +1,115 @@
 import { Routes } from '@angular/router';
 import { InicioDefaultComponent } from './componentes/inicio-default/inicio-default.component';
-import { LoginComponent } from './componentes/login/login.component';
-import { RegistroComponent } from './componentes/registro/registro.component';
-import { ActivarComponent } from './componentes/activar-cuenta/activar.component';
-import { RecuperarContrasenaComponent } from './componentes/recuperar-contrasena/recuperar-contrasena.component';
-import { CambiarContrasenaComponent } from './componentes/cambiar-contrasena/cambiar-contrasena.component';
-import { ConocenosComponent } from './componentes/conocenos/conocenos.component';
-import { ContactenosComponent } from './componentes/contactenos/contactenos.component';
-import { PoliticaTratamientoDatosComponent } from './componentes/politica-tratamiento-datos/politica-tratamiento-datos.component';
-import { UnauthorizedComponent } from './componentes/unauthorized/unauthorized.component';
-import { PerfilComponent } from './componentes/perfil/perfil.component';
-import { TutoresComponent } from './componentes/tutores/tutores.component';
-import { TutorDetalleComponent } from './componentes/tutor-detalle/tutor-detalle.component';
-import { AsesoriasComponent } from './componentes/asesorias/asesorias.component';
-import { ReactivarComponent } from './componentes/reactivar/reactivar.component';
-import { NuevaAsesoriaComponent } from './componentes/nueva-asesoria/nueva-asesoria.component';
 import { authGuard, cuentaActivaGuard, invitadoGuard } from './guards/auth.guard';
-import {OfrecerAsesoriaComponent} from './componentes/ofrecer-asesoria/ofrecer-asesoria.component';
 
+/** Todas las páginas salvo el inicio se cargan bajo demanda (carga inicial más liviana). */
 export const routes: Routes = [
   // Públicas
   { path: '', component: InicioDefaultComponent, title: 'Asesorías Edén' },
-  { path: 'tutores', component: TutoresComponent, title: 'Tutores · Asesorías Edén' },
-  { path: 'tutores/:id', component: TutorDetalleComponent, title: 'Tutor · Asesorías Edén' },
-  { path: 'conocenos', component: ConocenosComponent, title: 'Conócenos · Asesorías Edén' },
-  { path: 'contactenos', component: ContactenosComponent, title: 'Contáctenos · Asesorías Edén' },
-  { path: 'politicaDatos', component: PoliticaTratamientoDatosComponent, title: 'Política de datos · Asesorías Edén' },
+  {
+    path: 'tutores',
+    loadComponent: () => import('./componentes/tutores/tutores.component').then(m => m.TutoresComponent),
+    title: 'Tutores · Asesorías Edén',
+  },
+  {
+    path: 'tutores/:id',
+    loadComponent: () => import('./componentes/tutor-detalle/tutor-detalle.component').then(m => m.TutorDetalleComponent),
+    title: 'Tutor · Asesorías Edén',
+  },
+  {
+    path: 'conocenos',
+    loadComponent: () => import('./componentes/conocenos/conocenos.component').then(m => m.ConocenosComponent),
+    title: 'Conócenos · Asesorías Edén',
+  },
+  {
+    path: 'contactenos',
+    loadComponent: () => import('./componentes/contactenos/contactenos.component').then(m => m.ContactenosComponent),
+    title: 'Contáctenos · Asesorías Edén',
+  },
+  {
+    path: 'politicaDatos',
+    loadComponent: () =>
+      import('./componentes/politica-tratamiento-datos/politica-tratamiento-datos.component').then(m => m.PoliticaTratamientoDatosComponent),
+    title: 'Política de datos · Asesorías Edén',
+  },
 
   // Cuenta (invitados)
-  { path: 'login', component: LoginComponent, canActivate: [invitadoGuard], title: 'Iniciar sesión · Asesorías Edén' },
-  { path: 'registro', component: RegistroComponent, canActivate: [invitadoGuard], title: 'Registro · Asesorías Edén' },
-  { path: 'activar', component: ActivarComponent, title: 'Activar cuenta · Asesorías Edén' },
-  { path: 'recuperar', component: RecuperarContrasenaComponent, title: 'Recuperar contraseña · Asesorías Edén' },
-  { path: 'cambiar-contrasena', component: CambiarContrasenaComponent, title: 'Cambiar contraseña · Asesorías Edén' },
+  {
+    path: 'login',
+    canActivate: [invitadoGuard],
+    loadComponent: () => import('./componentes/login/login.component').then(m => m.LoginComponent),
+    title: 'Iniciar sesión · Asesorías Edén',
+  },
+  {
+    path: 'registro',
+    canActivate: [invitadoGuard],
+    loadComponent: () => import('./componentes/registro/registro.component').then(m => m.RegistroComponent),
+    title: 'Registro · Asesorías Edén',
+  },
+  {
+    path: 'activar',
+    loadComponent: () => import('./componentes/activar-cuenta/activar.component').then(m => m.ActivarComponent),
+    title: 'Activar cuenta · Asesorías Edén',
+  },
+  {
+    path: 'recuperar',
+    loadComponent: () =>
+      import('./componentes/recuperar-contrasena/recuperar-contrasena.component').then(m => m.RecuperarContrasenaComponent),
+    title: 'Recuperar contraseña · Asesorías Edén',
+  },
+  {
+    path: 'cambiar-contrasena',
+    loadComponent: () =>
+      import('./componentes/cambiar-contrasena/cambiar-contrasena.component').then(m => m.CambiarContrasenaComponent),
+    title: 'Cambiar contraseña · Asesorías Edén',
+  },
 
   // Con sesión
-  { path: 'perfil', component: PerfilComponent, canActivate: [authGuard], title: 'Mi perfil · Asesorías Edén' },
-  { path: 'reactivar', component: ReactivarComponent, canActivate: [authGuard], title: 'Reactivar cuenta · Asesorías Edén' },
-  { path: 'asesorias', component: AsesoriasComponent, canActivate: [cuentaActivaGuard], title: 'Mis asesorías · Asesorías Edén' },
-  { path: 'asesorias/nueva/:tutorId', component: NuevaAsesoriaComponent, canActivate: [cuentaActivaGuard], title: 'Nueva asesoría · Asesorías Edén' },
+  {
+    path: 'perfil',
+    canActivate: [authGuard],
+    loadComponent: () => import('./componentes/perfil/perfil.component').then(m => m.PerfilComponent),
+    title: 'Mi perfil · Asesorías Edén',
+  },
+  {
+    path: 'reactivar',
+    canActivate: [authGuard],
+    loadComponent: () => import('./componentes/reactivar/reactivar.component').then(m => m.ReactivarComponent),
+    title: 'Reactivar cuenta · Asesorías Edén',
+  },
+  {
+    path: 'asesorias',
+    canActivate: [cuentaActivaGuard],
+    loadComponent: () => import('./componentes/asesorias/asesorias.component').then(m => m.AsesoriasComponent),
+    title: 'Mis asesorías · Asesorías Edén',
+  },
+  {
+    path: 'asesorias/nueva/:tutorId',
+    canActivate: [cuentaActivaGuard],
+    loadComponent: () => import('./componentes/nueva-asesoria/nueva-asesoria.component').then(m => m.NuevaAsesoriaComponent),
+    title: 'Solicitar asesoría · Asesorías Edén',
+  },
+  {
+    path: 'ofrecer-asesoria',
+    canActivate: [cuentaActivaGuard],
+    loadComponent: () => import('./componentes/ofrecer-asesoria/ofrecer-asesoria.component').then(m => m.OfrecerAsesoriaComponent),
+    title: 'Materias que enseño · Asesorías Edén',
+  },
 
   // Compatibilidad con rutas antiguas
   { path: 'inicio', redirectTo: '', pathMatch: 'full' },
   { path: 'catalogo', redirectTo: 'tutores', pathMatch: 'full' },
 
-  { path: 'unauthorized', component: UnauthorizedComponent },
-
-  { path: 'ofrecer-asesoria', component: OfrecerAsesoriaComponent, canActivate: [cuentaActivaGuard], title: 'Ofrecer asesoría · Asesorías Edén' },
+  {
+    path: 'unauthorized',
+    loadComponent: () => import('./componentes/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent),
+    title: 'Sin acceso · Asesorías Edén',
+  },
 
   // Siempre al final
-  { path: '**', redirectTo: '' },
+  {
+    path: '**',
+    loadComponent: () => import('./componentes/no-encontrado/no-encontrado.component').then(m => m.NoEncontradoComponent),
+    title: 'Página no encontrada · Asesorías Edén',
+  },
 ];

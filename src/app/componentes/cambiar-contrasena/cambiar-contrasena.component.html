@@ -1,86 +1,82 @@
-<div class="auth-container">
+<div class="auth-page">
+  <div class="auth-card aparecer">
+    <app-auth-aside titulo="Crea una contraseña nueva"
+                    texto="Usa una contraseña segura que no uses en otros sitios."></app-auth-aside>
 
-  <div class="back-button">
-    <button type="button" routerLink="/recuperar" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> {{ t.cambiarContrasena.volver }}
-    </button>
-  </div>
+    <div class="auth-body">
+      <a routerLink="/recuperar" class="btn-volver"><i class="bi bi-arrow-left"></i> Volver</a>
 
-  <div class="brand-header">
-    <div class="brand-logo">EDÉN</div>
-    <div class="brand-subtitle">{{ t.comun.inmobiliaria }}</div>
-  </div>
+      @if (exito) {
+        <div class="text-center py-4">
+          <div class="auth-icono"><i class="bi bi-check2-circle"></i></div>
+          <h1>¡Contraseña actualizada!</h1>
+          <p class="subtitulo">Ya puedes iniciar sesión con tu nueva contraseña.</p>
+          <a routerLink="/login" class="btn btn-primary">Iniciar sesión</a>
+        </div>
+      } @else {
+        <div class="pasos-progreso" aria-label="Paso 2 de 2">
+          <span class="activo">1</span><div class="linea"></div><span class="activo">2</span>
+        </div>
+        <h1>Cambiar contraseña</h1>
+        <p class="subtitulo">Ingresa el código que te enviamos y elige tu nueva contraseña.</p>
 
-  <h2 class="text-center mb-3">{{ t.cambiarContrasena.titulo }}</h2>
-  <p class="text-center text-muted mb-4">{{ t.cambiarContrasena.subtitulo }}</p>
+        <form [formGroup]="form" (ngSubmit)="cambiarContrasena()" novalidate>
+          <div class="mb-3">
+            <label for="correo" class="form-label">Correo</label>
+            <div class="input-icono">
+              <i class="bi bi-envelope"></i>
+              <input id="correo" type="email" class="form-control" [(ngModel)]="email" [ngModelOptions]="{ standalone: true }"
+                     placeholder="tu-correo@ejemplo.com" autocomplete="email">
+            </div>
+          </div>
 
-  <div class="instructions">
-    <p class="mb-2"><strong>{{ t.cambiarContrasena.instrucciones }}</strong></p>
-    <ul>
-      <li>{{ t.cambiarContrasena.instruccion1 }}</li>
-      <li>{{ t.cambiarContrasena.instruccion2 }}</li>
-      <li>{{ t.cambiarContrasena.instruccion3 }}</li>
-    </ul>
-  </div>
+          <label class="form-label mb-0">Código de verificación</label>
+          <app-codigo-input [codigo]="form.get('codigo')?.value" (codigoChange)="setCodigo($event)"></app-codigo-input>
 
-  <div class="recovery-icon">
-    <i class="bi bi-key"></i>
-  </div>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label for="nueva" class="form-label">Nueva contraseña</label>
+              <div class="input-icono">
+                <i class="bi bi-lock"></i>
+                <input id="nueva" [type]="verContra ? 'text' : 'password'" class="form-control" formControlName="nuevaContrasena" autocomplete="new-password">
+                <button type="button" class="btn-ojo" (click)="verContra = !verContra" [attr.aria-label]="verContra ? 'Ocultar' : 'Mostrar'">
+                  <i class="bi" [ngClass]="verContra ? 'bi-eye-slash' : 'bi-eye'"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label for="confirmar" class="form-label">Confirmar</label>
+              <div class="input-icono">
+                <i class="bi bi-shield-lock"></i>
+                <input id="confirmar" [type]="verConfirmContra ? 'text' : 'password'" class="form-control" formControlName="confirmarContrasena" autocomplete="new-password">
+                <button type="button" class="btn-ojo" (click)="verConfirmContra = !verConfirmContra" [attr.aria-label]="verConfirmContra ? 'Ocultar' : 'Mostrar'">
+                  <i class="bi" [ngClass]="verConfirmContra ? 'bi-eye-slash' : 'bi-eye'"></i>
+                </button>
+              </div>
+            </div>
+          </div>
 
-  <form [formGroup]="form" (ngSubmit)="cambiarContrasena()">
+          @if (form.get('nuevaContrasena')?.value) {
+            <ul class="requisitos-lista mt-2">
+              @for (r of requisitos; track r.texto) {
+                <li [class.ok]="r.ok"><i class="bi" [class.bi-check-circle-fill]="r.ok" [class.bi-circle]="!r.ok"></i>{{ r.texto }}</li>
+              }
+            </ul>
+          }
+          @if (form.hasError('passwordsMismatch') && form.get('confirmarContrasena')?.touched) {
+            <div class="campo-error">Las contraseñas no coinciden.</div>
+          }
 
-    <!-- CÓDIGO -->
-    <div class="mb-3">
-      <label class="form-label">{{ t.cambiarContrasena.codigoVerificacion }}</label>
-      <input type="text" class="form-control" formControlName="codigo" [placeholder]="t.cambiarContrasena.placeholderCodigo">
-      <div *ngIf="form.get('codigo')?.invalid && (form.get('codigo')?.touched || submitAttempted)" class="text-danger">
-        <div *ngIf="form.get('codigo')?.errors?.['required']">{{ t.cambiarContrasena.errorCodigoReq }}</div>
-      </div>
+          @if (error) {
+            <div class="alert alert-danger py-2 small mt-3"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+          }
+
+          <button type="submit" class="btn btn-primary w-100 py-2 mt-3" [disabled]="isSubmitting">
+            @if (isSubmitting) { <span class="spinner-border spinner-border-sm me-2"></span> }
+            Guardar contraseña
+          </button>
+        </form>
+      }
     </div>
-
-    <!-- NUEVA CONTRASEÑA -->
-    <div class="mb-3">
-      <label class="form-label">{{ t.cambiarContrasena.nuevaContrasena }}</label>
-      <div class="password-toggle">
-        <input [type]="verContra ? 'text' : 'password'" class="form-control" formControlName="nuevaContrasena" [placeholder]="t.cambiarContrasena.placeholderNueva">
-        <span class="password-toggle-icon" (click)="mostrarContrasenia()">
-           <i class="bi" [ngClass]="verContra ? 'bi-eye-slash' : 'bi-eye'"></i>
-        </span>
-      </div>
-      <div *ngIf="form.get('nuevaContrasena')?.invalid && (form.get('nuevaContrasena')?.touched || submitAttempted)" class="text-danger">
-        <div *ngIf="form.get('nuevaContrasena')?.errors?.['required']">{{ t.cambiarContrasena.errorContrasenaReq }}</div>
-        <div *ngIf="form.get('nuevaContrasena')?.errors?.['minlength']">{{ t.cambiarContrasena.errorContrasenaMin }}</div>
-        <div *ngIf="form.get('nuevaContrasena')?.errors?.['pattern']">{{ t.cambiarContrasena.errorContrasenaPattern }}</div>
-      </div>
-    </div>
-
-    <!-- CONFIRMAR CONTRASEÑA -->
-    <div class="mb-3">
-      <label class="form-label">{{ t.cambiarContrasena.confirmarContrasena }}</label>
-      <div class="password-toggle">
-        <input [type]="verConfirmContra ? 'text' : 'password'" class="form-control" formControlName="confirmarContrasena" [placeholder]="t.cambiarContrasena.placeholderConfirmar">
-        <span class="password-toggle-icon" (click)="mostrarConfirmContrasenia()">
-          <i class="bi" [ngClass]="verConfirmContra ? 'bi-eye-slash' : 'bi-eye'"></i>
-        </span>
-      </div>
-      <div *ngIf="(form.get('confirmarContrasena')?.invalid && (form.get('confirmarContrasena')?.touched || submitAttempted)) || (form.errors?.['passwordsMismatch'] && submitAttempted)" class="text-danger">
-        <div *ngIf="form.get('confirmarContrasena')?.errors?.['required']">{{ t.cambiarContrasena.errorConfirmarReq }}</div>
-        <div *ngIf="form.errors?.['passwordsMismatch']">{{ t.cambiarContrasena.errorNoCoincide }}</div>
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
-      {{ isSubmitting ? t.cambiarContrasena.actualizando : t.cambiarContrasena.cambiarContrasena }}
-    </button>
-
-  </form>
-
-  <div [class]="classResult" *ngIf="result" class="mt-3">
-    {{ result }}
   </div>
-
-  <div class="auth-footer mt-3">
-    {{ t.cambiarContrasena.recordaste }} <a routerLink="/login">{{ t.cambiarContrasena.iniciaSesion }}</a>
-  </div>
-
 </div>

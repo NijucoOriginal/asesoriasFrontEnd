@@ -1,22 +1,22 @@
 .brand-sub {
   font-size: 0.85rem;
-  font-weight: 500;
-  color: #555;
-  margin-left: 4px;
-}
-
-.nav-link.active {
-  color: var(--primary) !important;
   font-weight: 600;
+  color: var(--muted);
+  margin-left: 2px;
 }
 
 .btn-icono {
   border-radius: 50%;
   width: 42px;
   height: 42px;
-  border: 1px solid #ddd;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
   font-size: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
 }
 
 .btn-icono:hover {
@@ -28,32 +28,54 @@
   position: absolute;
   top: -4px;
   right: -4px;
-  background: #e53935;
+  background: var(--danger);
   color: #fff;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
+  font-weight: 700;
   border-radius: 10px;
   padding: 1px 6px;
+  border: 2px solid var(--surface);
 }
 
 .btn-usuario {
   display: flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid #ddd;
-  border-radius: 30px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
   padding: 4px 14px 4px 4px;
-  background: #fff;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
 }
 
-.avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.btn-usuario:hover {
+  border-color: var(--primary);
+}
+
+.avatar,
+.avatar-foto {
   width: 32px;
   height: 32px;
+  font-size: 0.8rem;
+}
+
+.avatar-foto {
   border-radius: 50%;
-  background: var(--primary);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.85rem;
+  object-fit: cover;
+}
+
+.dropdown-header {
+  white-space: normal;
+  max-width: 260px;
+}
+
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    padding: 0.75rem 0;
+  }
+
+  .nav-link {
+    padding: 0.6rem 0.25rem;
+  }
 }

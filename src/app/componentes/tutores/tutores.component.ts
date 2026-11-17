@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TutoresService } from '../../servicios/tutores.service';
 import { TutorResponse } from '../../dto/modelos';
 import { mensajeError } from '../../servicios/api-error';
@@ -11,7 +12,7 @@ type Orden = 'calificacion' | 'horas' | 'nombre';
 @Component({
   selector: 'app-tutores',
   standalone: true,
-  imports: [FormsModule, TutorCardComponent],
+  imports: [FormsModule, RouterLink, TutorCardComponent],
   templateUrl: './tutores.component.html',
 })
 export class TutoresComponent implements OnInit {
@@ -24,9 +25,13 @@ export class TutoresComponent implements OnInit {
   materia = '';
   orden: Orden = 'calificacion';
 
-  constructor(private service: TutoresService) {}
+  constructor(private service: TutoresService, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+    // Permite enlazar /tutores?materia=Cálculo o ?q=texto desde otras páginas
+    const qp = this.route.snapshot.queryParamMap;
+    this.materia = qp.get('materia') ?? '';
+    this.busqueda = qp.get('q') ?? '';
     this.cargar();
   }
 

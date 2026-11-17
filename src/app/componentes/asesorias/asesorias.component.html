@@ -1,119 +1,131 @@
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-    <h2 class="section-title mb-0">Mis asesorías</h2>
+<div class="container pb-4 aparecer">
+  <header class="page-header d-flex justify-content-between align-items-end flex-wrap gap-3">
+    <div>
+      <h1>Mis asesorías</h1>
+      <p>Gestiona las asesorías que pides y las que das como tutor.</p>
+    </div>
     <div class="d-flex gap-2">
-      <button class="btn btn-outline-secondary rounded-pill" (click)="cargar()" [disabled]="cargando" title="Actualizar">
-        <i class="bi bi-arrow-clockwise"></i>
+      <button class="btn btn-outline-secondary" (click)="cargar()" [disabled]="cargando" title="Actualizar" aria-label="Actualizar">
+        <i class="bi bi-arrow-clockwise" [class.girando]="cargando"></i>
       </button>
       <a class="btn btn-primary" routerLink="/tutores"><i class="bi bi-plus-lg me-1"></i>Nueva asesoría</a>
     </div>
-  </div>
+  </header>
 
   @if (pendientesDeMi > 0) {
-    <div class="alert alert-warning py-2">
-      <i class="bi bi-bell me-1"></i> Tienes {{ pendientesDeMi }} {{ pendientesDeMi === 1 ? 'asesoría que espera' : 'asesorías que esperan' }} tu respuesta.
+    <div class="alert alert-warning d-flex align-items-center gap-2">
+      <i class="bi bi-bell-fill"></i>
+      <span>Tienes <strong>{{ pendientesDeMi }}</strong> {{ pendientesDeMi === 1 ? 'asesoría que espera' : 'asesorías que esperan' }} tu respuesta.</span>
     </div>
   }
 
-  <div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
-    <div class="btn-group" role="group" aria-label="Rol">
-      <button class="btn btn-tab" [class.activo]="vista === 'todas'" (click)="vista = 'todas'">Todas ({{ contar('todas') }})</button>
-      <button class="btn btn-tab" [class.activo]="vista === 'estudiante'" (click)="vista = 'estudiante'">Como estudiante ({{ contar('estudiante') }})</button>
-      <button class="btn btn-tab" [class.activo]="vista === 'tutor'" (click)="vista = 'tutor'">Como tutor ({{ contar('tutor') }})</button>
+  <div class="barra-filtros">
+    <div class="segmentos" role="tablist" aria-label="Rol">
+      <button role="tab" [attr.aria-selected]="vista === 'todas'" [class.activo]="vista === 'todas'" (click)="vista = 'todas'">
+        Todas <span>{{ contar('todas') }}</span>
+      </button>
+      <button role="tab" [attr.aria-selected]="vista === 'estudiante'" [class.activo]="vista === 'estudiante'" (click)="vista = 'estudiante'">
+        Como estudiante <span>{{ contar('estudiante') }}</span>
+      </button>
+      <button role="tab" [attr.aria-selected]="vista === 'tutor'" [class.activo]="vista === 'tutor'" (click)="vista = 'tutor'">
+        Como tutor <span>{{ contar('tutor') }}</span>
+      </button>
     </div>
-    <select class="form-select w-auto" [(ngModel)]="filtro" aria-label="Filtrar por estado">
-      <option value="activas">En curso</option>
-      <option value="historial">Historial</option>
-      <option value="todas">Todas</option>
-    </select>
+    <div class="segmentos pequenos" role="tablist" aria-label="Estado">
+      <button role="tab" [attr.aria-selected]="filtro === 'activas'" [class.activo]="filtro === 'activas'" (click)="filtro = 'activas'">En curso</button>
+      <button role="tab" [attr.aria-selected]="filtro === 'historial'" [class.activo]="filtro === 'historial'" (click)="filtro = 'historial'">Historial</button>
+      <button role="tab" [attr.aria-selected]="filtro === 'todas'" [class.activo]="filtro === 'todas'" (click)="filtro = 'todas'">Todas</button>
+    </div>
   </div>
 
   @if (cargando) {
-    <div class="text-center py-5"><div class="spinner-border text-success"></div></div>
+    <div class="d-flex flex-column gap-3">
+      @for (i of [1, 2, 3]; track i) { <div class="asesoria esqueleto"></div> }
+    </div>
   } @else if (error) {
     <div class="alert alert-danger d-flex justify-content-between align-items-center">
       <span>{{ error }}</span>
       <button class="btn btn-sm btn-outline-secondary" (click)="cargar()">Reintentar</button>
     </div>
   } @else if (visibles.length === 0) {
-    <div class="text-center text-muted py-5">
-      <i class="bi bi-calendar-x fs-1"></i>
-      <p class="mt-2">No tienes asesorías {{ filtro === 'activas' ? 'en curso' : filtro === 'historial' ? 'en el historial' : '' }}.</p>
-      <a class="btn btn-outline-primary" routerLink="/tutores">Buscar un tutor</a>
+    <div class="tarjeta vacio">
+      <i class="bi bi-calendar2-x"></i>
+      <h5>No tienes asesorías {{ filtro === 'activas' ? 'en curso' : filtro === 'historial' ? 'en el historial' : 'todavía' }}</h5>
+      <p>Busca un tutor y solicita tu primera asesoría, o elige las materias que puedes enseñar.</p>
+      <div class="d-flex gap-2 justify-content-center flex-wrap">
+        <a class="btn btn-primary" routerLink="/tutores">Buscar un tutor</a>
+        <a class="btn btn-outline-primary" routerLink="/ofrecer-asesoria">Ser tutor</a>
+      </div>
     </div>
   } @else {
     <div class="d-flex flex-column gap-3">
       @for (a of visibles; track a.id) {
-        <div class="card asesoria" [class.atencion]="puedoResponder(a)">
-          <div class="card-body">
-            <div class="d-flex justify-content-between flex-wrap gap-2">
+        <article class="asesoria" [class.atencion]="puedoResponder(a)">
+          <div class="fecha" [attr.aria-label]="inicio(a) | date:'fullDate'">
+            <span class="mes">{{ inicio(a) | date:'MMM' }}</span>
+            <span class="dia">{{ inicio(a) | date:'d' }}</span>
+            <span class="dia-semana">{{ inicio(a) | date:'EEE' }}</span>
+          </div>
+
+          <div class="cuerpo">
+            <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
               <div>
-                <h5 class="mb-1">{{ a.materiaNombre }}</h5>
-                <div class="text-muted small">
-                  <span class="rol-chip">{{ soyTutor(a) ? 'Eres el tutor' : 'Eres el estudiante' }}</span>
-                  {{ soyTutor(a) ? 'Estudiante' : 'Tutor' }}: <strong>{{ contraparte(a).nombre }} {{ contraparte(a).apellido }}</strong>
+                <h3 class="titulo">{{ a.materiaNombre }}</h3>
+                <div class="persona">
+                  <span class="avatar-iniciales mini">{{ contraparte(a).nombre[0] }}{{ contraparte(a).apellido[0] }}</span>
+                  <span>{{ soyTutor(a) ? 'Estudiante' : 'Tutor' }}: <strong>{{ contraparte(a).nombre }} {{ contraparte(a).apellido }}</strong></span>
+                  <span class="chip chip-gris">{{ soyTutor(a) ? 'Tú enseñas' : 'Tú aprendes' }}</span>
                 </div>
               </div>
-              <span class="estado-badge align-self-start" [class]="'estado-badge align-self-start estado-' + a.estado">{{ etiquetas[a.estado] }}</span>
+              <span [class]="'estado-badge estado-' + a.estado">{{ etiquetas[a.estado] }}</span>
             </div>
 
-            @if (a.temas.length) {
-              <div class="mt-2">
-                @for (t of a.temas; track t) { <span class="badge text-bg-light me-1">{{ t }}</span> }
-              </div>
-            }
-
-            <div class="row mt-3 g-2 small datos">
-              <div class="col-sm-6 col-lg-4">
-                <i class="bi bi-calendar-event"></i>
-                {{ inicio(a) | date:'EEE d MMM y' }}
-              </div>
-              <div class="col-sm-6 col-lg-4">
-                <i class="bi bi-clock"></i>
-                {{ inicio(a) | date:'h:mm a' }} – {{ cierre(a) | date:'h:mm a' }}
-              </div>
-              <div class="col-sm-6 col-lg-4">
-                <i class="bi bi-cash-coin"></i>
-                {{ a.precio | currency:'COP':'symbol-narrow':'1.0-0' }}
-                @if (a.estado === 'CONTRAPROPUESTA' && a.motivoContrapropuesta) {
-                  <span class="badge text-bg-info ms-1">Cambio de {{ a.motivoContrapropuesta === 'PRECIO' ? 'precio' : 'horario' }}</span>
-                }
-              </div>
+            <div class="detalles">
+              <span><i class="bi bi-clock"></i>{{ inicio(a) | date:'h:mm a' }} – {{ cierre(a) | date:'h:mm a' }}</span>
+              <span><i class="bi bi-cash-coin"></i>{{ a.precio | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+              @if (a.estado === 'CONTRAPROPUESTA' && a.motivoContrapropuesta) {
+                <span class="chip">Cambio de {{ a.motivoContrapropuesta === 'PRECIO' ? 'precio' : 'horario' }}</span>
+              }
+              @for (t of a.temas; track t) { <span class="chip chip-gris">{{ t }}</span> }
             </div>
 
-            <p class="mt-2 mb-0 small descripcion">{{ descripcionEstado(a) }}</p>
+            <p class="descripcion" [class.destacada]="puedoResponder(a)">
+              @if (puedoResponder(a)) { <i class="bi bi-hourglass-split me-1"></i> }
+              {{ descripcionEstado(a) }}
+            </p>
 
-            <div class="d-flex flex-wrap gap-2 mt-3">
+            <div class="acciones">
               @if (puedoResponder(a)) {
                 <button class="btn btn-sm btn-primary" (click)="aceptar(a)" [disabled]="procesando === a.id">
-                  <i class="bi bi-check-lg"></i> Aceptar
+                  <i class="bi bi-check-lg me-1"></i>Aceptar
                 </button>
                 <button class="btn btn-sm btn-outline-primary" (click)="abrirPropuesta(a)" [disabled]="procesando === a.id">
-                  <i class="bi bi-arrow-left-right"></i> {{ soyTutor(a) ? 'Contraproponer' : 'Enviar otra propuesta' }}
+                  <i class="bi bi-arrow-left-right me-1"></i>{{ soyTutor(a) ? 'Contraproponer' : 'Otra propuesta' }}
                 </button>
-                <button class="btn btn-sm btn-outline-danger rounded-pill" (click)="rechazar(a)" [disabled]="procesando === a.id">
-                  <i class="bi bi-x-lg"></i> Rechazar
+                <button class="btn btn-sm btn-outline-danger" (click)="rechazar(a)" [disabled]="procesando === a.id">
+                  <i class="bi bi-x-lg me-1"></i>Rechazar
                 </button>
               }
               @if (puedoCancelar(a)) {
-                <button class="btn btn-sm btn-outline-danger rounded-pill" (click)="cancelar(a)"
+                <button class="btn btn-sm btn-outline-danger" (click)="cancelar(a)"
                         [disabled]="procesando === a.id || fueraDeVentana(a)"
                         [title]="fueraDeVentana(a) ? 'Solo se puede cancelar hasta 12 horas antes' : ''">
-                  <i class="bi bi-slash-circle"></i> Cancelar
+                  <i class="bi bi-slash-circle me-1"></i>Cancelar
                 </button>
               }
               @if (puedoResenar(a)) {
-                <button class="btn btn-sm btn-outline-warning rounded-pill" (click)="abrirResena(a)" [disabled]="procesando === a.id">
-                  <i class="bi bi-star"></i> {{ resenas.has(a.id) ? 'Editar reseña' : 'Calificar' }}
+                <button class="btn btn-sm btn-resena" (click)="abrirResena(a)" [disabled]="procesando === a.id">
+                  <i class="bi me-1" [class.bi-star-fill]="resenas.has(a.id)" [class.bi-star]="!resenas.has(a.id)"></i>
+                  {{ resenas.has(a.id) ? 'Editar reseña' : 'Calificar tutor' }}
                 </button>
               }
-              <button class="btn btn-sm btn-light rounded-pill" (click)="mensaje(a)">
-                <i class="bi bi-chat-dots"></i> Mensaje
+              <button class="btn btn-sm btn-light" (click)="mensaje(a)">
+                <i class="bi bi-chat-dots me-1"></i>Mensaje
               </button>
               @if (procesando === a.id) { <span class="spinner-border spinner-border-sm text-success align-self-center"></span> }
             </div>
           </div>
-        </div>
+        </article>
       }
     </div>
   }

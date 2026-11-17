@@ -1,11 +1,8 @@
 import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
 import { AuthService } from '../../servicios/auth.service';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
+import { AuthAsideComponent } from '../auth-aside/auth-aside.component';
 import { Router, RouterLink } from '@angular/router';
 import { RedireccionService } from '../../servicios/redireccion.service';
 import { RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha';
@@ -18,17 +15,7 @@ import {ChatService} from '../../servicios/chat.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    InputTextModule,
-    PasswordModule,
-    ButtonModule,
-    MessageModule,
-    NgIf,
-    RouterLink,
-    NgClass,
-    RecaptchaModule
-  ],
+  imports: [ReactiveFormsModule, RouterLink, NgClass, RecaptchaModule, AuthAsideComponent],
   providers: [
     {
       provide: RECAPTCHA_SETTINGS,
@@ -38,7 +25,6 @@ import {ChatService} from '../../servicios/chat.service';
     },
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;

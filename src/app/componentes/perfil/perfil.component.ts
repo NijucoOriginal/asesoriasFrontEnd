@@ -8,6 +8,7 @@ import { ChatService } from '../../servicios/chat.service';
 import { ProgramasService } from '../../servicios/programas.service';
 import { NotificacionService } from '../../servicios/notificacion.service';
 import { mensajeError } from '../../servicios/api-error';
+import { ConfirmacionService } from '../../servicios/confirmacion.service';
 import { AsesoriaResponse, PerfilResponse, ProgramaCatalogo } from '../../dto/modelos';
 
 const MAX_IMAGEN_MB = 20;
@@ -34,6 +35,7 @@ export class PerfilComponent implements OnInit {
   programas: ProgramaCatalogo[] = [];
   programaSel: number | null = null;
   guardandoPrograma = false;
+  editandoCarrera = false;
 
   resumen = { comoEstudiante: 0, comoTutor: 0, finalizadas: 0, enCurso: 0 };
 
@@ -45,6 +47,7 @@ export class PerfilComponent implements OnInit {
     private chat: ChatService,
     private programasService: ProgramasService,
     private notificaciones: NotificacionService,
+    private confirmacion: ConfirmacionService,
     private router: Router
   ) {
     this.form = fb.group({
@@ -127,13 +130,23 @@ export class PerfilComponent implements OnInit {
     });
   }
 
+  editarCarrera(): void {
+    this.programaSel = this.perfil?.programaId ?? null;
+    this.editandoCarrera = true;
+  }
+
   guardarPrograma(): void {
     if (!this.programaSel || this.guardandoPrograma) return;
+    if (this.programaSel === this.perfil?.programaId) {
+      this.editandoCarrera = false;
+      return;
+    }
     this.guardandoPrograma = true;
     this.programasService.cambiarPrograma(this.programaSel).subscribe({
       next: p => {
         this.perfil = p;
         this.programaSel = null;
+        this.editandoCarrera = false;
         this.guardandoPrograma = false;
         this.notificaciones.exito('Carrera guardada.');
       },
@@ -171,12 +184,15 @@ export class PerfilComponent implements OnInit {
     });
   }
 
-  desvincular(): void {
+  async desvincular(): Promise<void> {
     if (!this.perfil) return;
-    const ok = confirm(
-      'Al desactivar tu cuenta se rechazarán o cancelarán tus asesorías abiertas y no podrás usar la plataforma ' +
-      'hasta reactivarla. ¿Deseas continuar?'
-    );
+    const ok = await this.confirmacion.preguntar({
+      titulo: '¿Desactivar tu cuenta?',
+      mensaje:
+        'Tus asesorías abiertas se rechazarán o cancelarán y no podrás usar la plataforma hasta reactivarla.',
+      confirmar: 'Sí, desactivar',
+      peligro: true,
+    });
     if (!ok) return;
     this.desvinculando = true;
     this.users.desvincular(this.perfil.email).subscribe({

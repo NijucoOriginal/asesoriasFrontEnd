@@ -1,79 +1,73 @@
-<div class="login-container">
-  <div class="back-button">
-    <button routerLink="/" type="button" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> {{ t.login.volverInicio }}
-    </button>
-  </div>
+<div class="auth-page">
+  <div class="auth-card aparecer">
+    <app-auth-aside titulo="¡Qué bueno verte de nuevo!"
+                    texto="Inicia sesión para gestionar tus asesorías, chatear con tutores y seguir aprendiendo."></app-auth-aside>
 
-  <div class="login-header">
-    <h2>EDÉN</h2>
-    <p>{{ t.login.titulo }}</p>
-  </div>
+    <div class="auth-body">
+      <a routerLink="/" class="btn-volver"><i class="bi bi-arrow-left"></i> {{ t.login.volverInicio }}</a>
+      <h1>Iniciar sesión</h1>
+      <p class="subtitulo">{{ t.login.titulo }}</p>
 
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <div class="mb-3">
-      <label for="email" class="form-label">{{ t.login.email }}</label>
-      <input type="text" class="form-control" formControlName="email" id="email" [placeholder]="t.login.placeholderEmail">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="mb-3">
+          <label for="email" class="form-label">{{ t.login.email }}</label>
+          <div class="input-icono">
+            <i class="bi bi-envelope"></i>
+            <input type="email" class="form-control" formControlName="email" id="email" autocomplete="email"
+                   [placeholder]="t.login.placeholderEmail"
+                   [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          </div>
+          @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+            <div class="campo-error">{{ t.login.errorEmail }}</div>
+          }
+        </div>
 
-      <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-danger">
-        {{ t.login.errorEmail }}
-      </div>
+        <div class="mb-2">
+          <label for="password" class="form-label">{{ t.login.contrasena }}</label>
+          <div class="input-icono">
+            <i class="bi bi-lock"></i>
+            <input [type]="verContra ? 'text' : 'password'" class="form-control" id="password" formControlName="contrasena"
+                   autocomplete="current-password" placeholder="Tu contraseña"
+                   [class.is-invalid]="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched">
+            <button type="button" class="btn-ojo" (click)="mostrarContrasenia()"
+                    [attr.aria-label]="verContra ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+              <i class="bi" [ngClass]="verContra ? 'bi-eye-slash' : 'bi-eye'"></i>
+            </button>
+          </div>
+          @if (loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched) {
+            <div class="campo-error">{{ t.login.errorContrasena }}</div>
+          }
+        </div>
+
+        <div class="text-end mb-2">
+          <a routerLink="/recuperar" class="small link-clickable">{{ t.login.olvidoContrasena }}</a>
+        </div>
+
+        <div class="captcha-centro">
+          @if (captchaActivo) {
+            <re-captcha (resolved)="resolved($event)" [theme]="temaActual"></re-captcha>
+          }
+        </div>
+        @if (captchaError) {
+          <div class="campo-error text-center mb-2"><i class="bi bi-exclamation-circle me-1"></i>{{ captchaError }}</div>
+        }
+
+        @if (cuentaPendiente) {
+          <div class="alert alert-warning py-2 small">
+            Tu cuenta aún no está activada. <a routerLink="/activar" class="fw-semibold">Ingresa el código de activación</a>.
+          </div>
+        }
+
+        <button type="submit" [disabled]="loading" class="btn btn-primary w-100 py-2">
+          @if (loading) { <span class="spinner-border spinner-border-sm me-2"></span> }
+          {{ loading ? t.login.cargando : 'Iniciar sesión' }}
+        </button>
+      </form>
+
+      <p class="auth-footer">
+        {{ t.login.noTieneCuenta }}
+        <a routerLink="/registro" class="link-clickable">{{ t.login.registrate }}</a>
+      </p>
     </div>
-
-    <div class="mb-3">
-      <label for="contrasena" class="form-label">{{ t.login.contrasena }}</label>
-      <div class="password-toggle">
-        <input [type]="verContra ? 'text' : 'password'"
-               class="form-control"
-               id="password"
-               formControlName="contrasena"
-               [placeholder]="t.login.placeholderContrasena"
-               required>
-
-        <span class="password-toggle-icon" (click)="mostrarContrasenia()">
-          <i class="bi" [ngClass]="verContra ? 'bi-eye-slash' : 'bi-eye'"></i>
-        </span>
-      </div>
-
-      <div *ngIf="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched" class="text-danger">
-        {{ t.login.errorContrasena }}
-      </div>
-    </div>
-
-    <div class="forgot-password">
-      <a routerLink="/recuperar">{{ t.login.olvidoContrasena }}</a>
-    </div>
-
-    <div class="mb-3 d-flex flex-column align-items-center">
-      @if (captchaActivo) {
-        <re-captcha
-          (resolved)="resolved($event)"
-          [theme]="temaActual">
-        </re-captcha>
-      }
-      <div *ngIf="captchaError" class="captcha-error">
-        <i class="bi bi-exclamation-circle-fill"></i>
-        {{ captchaError }}
-      </div>
-    </div>
-
-    @if (cuentaPendiente) {
-      <div class="alert alert-warning py-2 small">
-        Tu cuenta aún no está activada. <a routerLink="/activar" class="fw-semibold">Ingresa el código de activación</a>.
-      </div>
-    }
-
-    <button type="submit" [disabled]="loading" class="btn btn-primary w-100">
-      {{ loading ? t.login.cargando : t.login.boton }}
-    </button>
-  </form>
-
-  <div class="login-footer">
-    <p>
-      {{ t.login.noTieneCuenta }}
-      <a (click)="redireccionamiento.redirigirARegistro()" style="cursor: pointer;">
-        {{ t.login.registrate }}
-      </a>
-    </p>
   </div>
 </div>

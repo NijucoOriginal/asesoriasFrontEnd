@@ -1,163 +1,166 @@
-<div class="register-container">
-  <div class="back-button">
-    <button type="button" routerLink="/login" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> {{ t.registro.volverLogin }}
-    </button>
-  </div>
+<div class="auth-page">
+  <div class="auth-card ancha aparecer">
+    <app-auth-aside titulo="Únete a EDÉN Asesorías"
+                    texto="Crea tu cuenta gratis: pide asesorías a otros estudiantes o comparte lo que sabes como tutor."></app-auth-aside>
 
-  <div class="register-header">
-    <h2>EDÉN</h2>
-    <p>{{ t.registro.titulo }}</p>
-  </div>
+    <div class="auth-body">
+      <a routerLink="/login" class="btn-volver"><i class="bi bi-arrow-left"></i> {{ t.registro.volverLogin }}</a>
+      <h1>Crear cuenta</h1>
+      <p class="subtitulo">{{ t.registro.titulo }}</p>
 
-  <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
-    <div class="row">
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label for="firstName" class="form-label">{{ t.registro.nombre }}</label>
-          <input type="text" class="form-control" formControlName="nombre" id="firstName" [placeholder]="t.registro.placeholderNombre">
+      <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <label for="nombre" class="form-label">{{ t.registro.nombre }}</label>
+            <input id="nombre" class="form-control" formControlName="nombre" autocomplete="given-name"
+                   [placeholder]="t.registro.placeholderNombre" [class.is-invalid]="invalido('nombre')">
+            @if (invalido('nombre')) {
+              <div class="campo-error">{{ registroForm.get('nombre')?.hasError('maxlength') ? t.registro.errorNombreMax : t.registro.errorNombreReq }}</div>
+            }
+          </div>
+          <div class="col-sm-6">
+            <label for="apellido" class="form-label">{{ t.registro.apellido }}</label>
+            <input id="apellido" class="form-control" formControlName="apellido" autocomplete="family-name"
+                   [placeholder]="t.registro.placeholderApellido" [class.is-invalid]="invalido('apellido')">
+            @if (invalido('apellido')) {
+              <div class="campo-error">{{ registroForm.get('apellido')?.hasError('maxlength') ? t.registro.errorApellidoMax : t.registro.errorApellidoReq }}</div>
+            }
+          </div>
 
-          <div *ngIf="registroForm.get('nombre')?.invalid && registroForm.get('nombre')?.touched" class="text-danger">
-            <div *ngIf="registroForm.get('nombre')?.errors?.['required']">{{ t.registro.errorNombreReq }}</div>
-            <div *ngIf="registroForm.get('nombre')?.errors?.['maxlength']">{{ t.registro.errorNombreMax }}</div>
+          <div class="col-sm-6">
+            <label for="documento" class="form-label">{{ t.registro.documentoIdentidad }}</label>
+            <input id="documento" class="form-control" formControlName="documentoIdentidad" inputmode="numeric"
+                   [placeholder]="t.registro.placeholderDocumento" [class.is-invalid]="invalido('documentoIdentidad')">
+            @if (invalido('documentoIdentidad')) {
+              <div class="campo-error">{{ registroForm.get('documentoIdentidad')?.hasError('maxlength') ? t.registro.errorDocumentoMax : t.registro.errorDocumentoReq }}</div>
+            }
+          </div>
+          <div class="col-sm-6">
+            <label for="telefono" class="form-label">{{ t.registro.telefono }}</label>
+            <div class="input-group">
+              <select class="form-select prefijo" [(ngModel)]="prefijoTelefono" [ngModelOptions]="{ standalone: true }" aria-label="Indicativo">
+                @for (pais of paises; track pais.codigo) {
+                  <option [value]="pais.codigo">{{ pais.codigo }}</option>
+                }
+              </select>
+              <input id="telefono" class="form-control" formControlName="telefono" inputmode="numeric" autocomplete="tel-national"
+                     placeholder="3001234567" (keypress)="soloNumeros($event)" [class.is-invalid]="invalido('telefono')">
+            </div>
+            @if (invalido('telefono')) {
+              <div class="campo-error">
+                @if (registroForm.get('telefono')?.hasError('pattern')) { {{ t.registro.errorTelefonoSoloNumeros }} }
+                @else if (registroForm.get('telefono')?.hasError('maxlength')) { {{ t.registro.errorTelefonoMax }} }
+                @else { {{ t.registro.errorTelefonoReq }} }
+              </div>
+            }
+          </div>
+
+          <div class="col-12">
+            <label for="email" class="form-label">{{ t.registro.correoElectronico }}</label>
+            <div class="input-icono">
+              <i class="bi bi-envelope"></i>
+              <input id="email" type="email" class="form-control" formControlName="email" autocomplete="email"
+                     [placeholder]="t.registro.placeholderEmail" [class.is-invalid]="invalido('email')">
+            </div>
+            @if (invalido('email')) {
+              <div class="campo-error">
+                @if (registroForm.get('email')?.hasError('required')) { {{ t.registro.errorEmailReq }} }
+                @else if (registroForm.get('email')?.hasError('maxlength')) { {{ t.registro.errorEmailMax }} }
+                @else { {{ t.registro.errorEmailInvalido }} }
+              </div>
+            }
+          </div>
+
+          <div class="col-12">
+            <label for="programa" class="form-label">Carrera que cursas</label>
+            <div class="input-icono">
+              <i class="bi bi-mortarboard"></i>
+              <select id="programa" class="form-select ps-5" formControlName="programaId" [class.is-invalid]="invalido('programaId')">
+                <option [ngValue]="null" disabled>{{ programas.length ? 'Selecciona tu carrera' : 'Cargando carreras...' }}</option>
+                @for (p of programas; track p.id) {
+                  <option [ngValue]="p.id">{{ p.nombre }}</option>
+                }
+              </select>
+            </div>
+            @if (invalido('programaId')) {
+              <div class="campo-error">Debes seleccionar tu carrera.</div>
+            }
+          </div>
+
+          <div class="col-sm-6">
+            <label for="contrasena" class="form-label">{{ t.registro.contrasena }}</label>
+            <div class="input-icono">
+              <i class="bi bi-lock"></i>
+              <input id="contrasena" [type]="verContra ? 'text' : 'password'" class="form-control" formControlName="contrasena"
+                     autocomplete="new-password" [placeholder]="t.registro.placeholderContrasena" [class.is-invalid]="invalido('contrasena')">
+              <button type="button" class="btn-ojo" (click)="mostrarContrasenia()" [attr.aria-label]="verContra ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                <i class="bi" [ngClass]="verContra ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <label for="confirmar" class="form-label">{{ t.registro.confirmarContrasena }}</label>
+            <div class="input-icono">
+              <i class="bi bi-shield-lock"></i>
+              <input id="confirmar" [type]="verConfirmContra ? 'text' : 'password'" class="form-control" formControlName="confirmcontrasena"
+                     autocomplete="new-password" [placeholder]="t.registro.placeholderConfirmar"
+                     [class.is-invalid]="(invalido('confirmcontrasena') || (registroForm.hasError('passwordsMismatch') && registroForm.get('confirmcontrasena')?.touched))">
+              <button type="button" class="btn-ojo" (click)="mostrarConfirmContrasenia()" [attr.aria-label]="verConfirmContra ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                <i class="bi" [ngClass]="verConfirmContra ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+            </div>
+            @if (registroForm.hasError('passwordsMismatch') && registroForm.get('confirmcontrasena')?.touched) {
+              <div class="campo-error">{{ t.registro.errorContrasenaNoCoincide }}</div>
+            }
+          </div>
+
+          @if (registroForm.get('contrasena')?.value || invalido('contrasena')) {
+            <div class="col-12">
+              <ul class="requisitos-lista">
+                @for (r of requisitos; track r.texto) {
+                  <li [class.ok]="r.ok"><i class="bi" [class.bi-check-circle-fill]="r.ok" [class.bi-circle]="!r.ok"></i>{{ r.texto }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          <div class="col-12">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="politica" formControlName="aceptaPolitica"
+                     [class.is-invalid]="invalido('aceptaPolitica')">
+              <label class="form-check-label small" for="politica">
+                {{ t.registro.aceptaPolitica }}
+                <a class="link-clickable" (click)="redirigirPoliticaDatosConLocalStorage()">{{ t.registro.politicaDatos }}</a>
+              </label>
+            </div>
+            @if (invalido('aceptaPolitica')) {
+              <div class="campo-error">Debes aceptar la política de tratamiento de datos.</div>
+            }
           </div>
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label for="lastName" class="form-label">{{ t.registro.apellido }}</label>
-          <input type="text" class="form-control" formControlName="apellido" id="lastName" [placeholder]="t.registro.placeholderApellido">
 
-          <div *ngIf="registroForm.get('apellido')?.invalid && registroForm.get('apellido')?.touched" class="text-danger">
-            <div *ngIf="registroForm.get('apellido')?.errors?.['required']">{{ t.registro.errorApellidoReq }}</div>
-            <div *ngIf="registroForm.get('apellido')?.errors?.['maxlength']">{{ t.registro.errorApellidoMax }}</div>
+        <div class="captcha-centro mt-3">
+          @if (captchaActivo) {
+            <re-captcha (resolved)="onCaptchaResolved($event)" [theme]="temaActual"></re-captcha>
+          }
+        </div>
+
+        @if (result) {
+          <div class="alert py-2 small" [class.alert-danger]="!exito" [class.alert-success]="exito">
+            <i class="bi me-1" [class.bi-check-circle]="exito" [class.bi-exclamation-circle]="!exito"></i>{{ result }}
           </div>
-        </div>
-      </div>
+        }
+
+        <button type="submit" class="btn btn-primary w-100 py-2" [disabled]="cargando">
+          @if (cargando) { <span class="spinner-border spinner-border-sm me-2"></span> }
+          {{ t.registro.crearCuenta }}
+        </button>
+      </form>
+
+      <p class="auth-footer">
+        {{ t.registro.yaTieneCuenta }}
+        <a routerLink="/login" class="link-clickable">{{ t.registro.iniciaSesion }}</a>
+      </p>
     </div>
-
-    <div class="mb-3">
-      <label for="documentId" class="form-label">{{ t.registro.documentoIdentidad }}</label>
-      <input type="text" class="form-control" id="documentId" formControlName="documentoIdentidad" [placeholder]="t.registro.placeholderDocumento">
-
-      <div *ngIf="registroForm.get('documentoIdentidad')?.invalid && registroForm.get('documentoIdentidad')?.touched" class="text-danger">
-        <div *ngIf="registroForm.get('documentoIdentidad')?.errors?.['required']">{{ t.registro.errorDocumentoReq }}</div>
-        <div *ngIf="registroForm.get('documentoIdentidad')?.errors?.['maxlength']">{{ t.registro.errorDocumentoMax }}</div>
-      </div>
-    </div>
-
-    <div class="mb-3">
-      <label for="phone" class="form-label">{{ t.registro.telefono }}</label>
-      <div class="telefono-wrapper">
-        <select class="prefijo-select" [(ngModel)]="prefijoTelefono" [ngModelOptions]="{standalone: true}">
-          <option *ngFor="let pais of paises" [value]="pais.codigo">
-            {{ pais.codigo }} — {{ pais.nombre }}
-          </option>
-        </select>
-        <input
-          type="tel"
-          class="form-control telefono-input"
-          formControlName="telefono"
-          id="phone"
-          placeholder="3001234567"
-          (keypress)="soloNumeros($event)">
-      </div>
-
-      <div *ngIf="registroForm.get('telefono')?.invalid && registroForm.get('telefono')?.touched" class="text-danger">
-        <div *ngIf="registroForm.get('telefono')?.errors?.['required']">{{ t.registro.errorTelefonoReq }}</div>
-        <div *ngIf="registroForm.get('telefono')?.errors?.['pattern']">{{ t.registro.errorTelefonoSoloNumeros }}</div>
-        <div *ngIf="registroForm.get('telefono')?.errors?.['maxlength']">{{ t.registro.errorTelefonoMax }}</div>
-      </div>
-    </div>
-
-    <div class="mb-3">
-      <label for="email" class="form-label">{{ t.registro.correoElectronico }}</label>
-      <input type="email" class="form-control" formControlName="email" id="email" [placeholder]="t.registro.placeholderEmail">
-
-      <div *ngIf="registroForm.get('email')?.invalid && registroForm.get('email')?.touched" class="text-danger">
-        <div *ngIf="registroForm.get('email')?.errors?.['required']">{{ t.registro.errorEmailReq }}</div>
-        <div *ngIf="registroForm.get('email')?.errors?.['email']">{{ t.registro.errorEmailInvalido }}</div>
-        <div *ngIf="registroForm.get('email')?.errors?.['maxlength']">{{ t.registro.errorEmailMax }}</div>
-      </div>
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label" for="programa">Carrera que cursas</label>
-      <select id="programa" class="form-select" formControlName="programaId">
-        <option [ngValue]="null" disabled>Selecciona tu carrera</option>
-        <option *ngFor="let p of programas" [ngValue]="p.id">{{ p.nombre }}</option>
-      </select>
-      <div *ngIf="registroForm.get('programaId')?.invalid && registroForm.get('programaId')?.touched" class="text-danger">
-        Debes seleccionar tu carrera.
-      </div>
-    </div>
-
-    <div class="mb-3">
-      <label for="password" class="form-label">{{ t.registro.contrasena }}</label>
-      <div class="password-toggle">
-        <input [type]="verContra ? 'text' : 'password'" class="form-control" id="password" formControlName="contrasena" [placeholder]="t.registro.placeholderContrasena">
-
-        <div *ngIf="registroForm.get('contrasena')?.invalid && registroForm.get('contrasena')?.touched" class="text-danger">
-          <div *ngIf="registroForm.get('contrasena')?.errors?.['required']">{{ t.registro.errorContrasenaReq }}</div>
-          <div *ngIf="registroForm.get('contrasena')?.errors?.['minlength']">{{ t.registro.errorContrasenaMin }}</div>
-          <div *ngIf="registroForm.get('contrasena')?.errors?.['pattern']">{{ t.registro.errorContrasenaPattern }}</div>
-        </div>
-        <span class="password-toggle-icon" (click)="mostrarContrasenia()">
-          <i class="bi" [ngClass]="verContra ? 'bi-eye-slash' : 'bi-eye'"></i>
-        </span>
-      </div>
-    </div>
-
-    <div class="mb-3">
-      <label for="confirmPassword" class="form-label">{{ t.registro.confirmarContrasena }}</label>
-      <div class="password-toggle">
-        <input [type]="verConfirmContra ? 'text' : 'password'" class="form-control" id="confirmPassword" formControlName="confirmcontrasena" [placeholder]="t.registro.placeholderConfirmar">
-
-        <div *ngIf="registroForm.get('confirmcontrasena')?.invalid && registroForm.get('confirmcontrasena')?.touched" class="text-danger">
-          <div *ngIf="registroForm.get('confirmcontrasena')?.errors?.['required']">{{ t.registro.errorConfirmarReq }}</div>
-        </div>
-        <span class="password-toggle-icon" (click)="mostrarConfirmContrasenia()">
-          <i class="bi" [ngClass]="verConfirmContra ? 'bi-eye-slash' : 'bi-eye'"></i>
-        </span>
-      </div>
-      <div *ngIf="registroForm.errors?.['passwordsMismatch'] && registroForm.get('confirmcontrasena')?.touched" class="text-danger">
-        {{ t.registro.errorContrasenaNoCoincide }}
-      </div>
-    </div>
-
-    <div class="form-check mb-3 d-flex align-items-center">
-      <input class="form-check-input me-2" type="checkbox" id="politicaCheck" formControlName="aceptaPolitica">
-      <label class="form-check-label" for="politicaCheck">
-        {{ t.registro.aceptaPolitica }}
-        <a (click)="redirigirPoliticaDatosConLocalStorage()" class="politica-link">
-          {{ t.registro.politicaDatos }}
-        </a>?
-      </label>
-    </div>
-
-    <div class="mb-3 d-flex justify-content-center">
-      @if (captchaActivo) {
-        <re-captcha
-          (resolved)="onCaptchaResolved($event)"
-          [theme]="temaActual">
-        </re-captcha>
-      }
-    </div>
-
-    <button type="submit" [disabled]="registroForm.invalid || !captchaToken" class="btn btn-primary w-100">
-      {{ t.registro.crearCuenta }}
-    </button>
-  </form>
-
-  <div class="register-footer">
-    <p>{{ t.registro.yaTieneCuenta }} <a (click)="redireccionamiento.redirigirALogin()">{{ t.registro.iniciaSesion }}</a></p>
-  </div>
-
-  <div [class]="classResult" *ngIf="result" class="mt-3 text-center">
-    {{ result }}
-  </div>
-
-  <div *ngIf="classResult === 'success' && result.includes('registrado')" class="alert alert-info mt-3">
-    <i class="bi bi-info-circle"></i> {{ t.registro.codigoActivacion }}
   </div>
 </div>

@@ -1,94 +1,85 @@
-<main class="conocenos-container">
-
-  <!-- HERO -->
-  <section class="hero-section">
-    <div class="hero-content">
-      <h1>{{ t.conocenos.titulo }}</h1>
-      <p>{{ t.conocenos.subtitulo }}</p>
-      <span class="hero-subtitle">{{ t.conocenos.heroSubtitle }}</span>
-    </div>
+<div class="container pb-5 aparecer">
+  <section class="banda-hero">
+    <span class="chip-claro">{{ t.conocenos.subtitulo }}</span>
+    <h1 class="display-6 fw-bold mt-3 mb-2">{{ t.conocenos.titulo }}</h1>
+    <p class="lead mb-0">{{ t.conocenos.heroSubtitle }}</p>
   </section>
 
-  <!-- CONTENIDO -->
-  <section class="conocenos-content">
+  @if (cifras) {
+    <div class="row g-3 cifras">
+      <div class="col-4"><div class="tarjeta text-center"><strong>{{ cifras.tutores }}</strong><span>Tutores activos</span></div></div>
+      <div class="col-4"><div class="tarjeta text-center"><strong>{{ cifras.materias }}</strong><span>Materias</span></div></div>
+      <div class="col-4"><div class="tarjeta text-center"><strong>{{ cifras.carreras }}</strong><span>Carreras</span></div></div>
+    </div>
+  }
 
-    <!-- HISTORIA -->
-    <div class="section-card">
-      <h2>{{ t.conocenos.historia }}</h2>
-      <p>{{ t.conocenos.historiaTexto1 }}</p>
-      <p>{{ t.conocenos.historiaTexto2 }}</p>
+  <div class="row g-4 mt-1">
+    <div class="col-lg-7">
+      <article class="tarjeta h-100">
+        <h2 class="tarjeta-titulo"><i class="bi bi-book"></i>{{ t.conocenos.historia }}</h2>
+        <p>{{ t.conocenos.historiaTexto1 }}</p>
+        <p class="mb-0">{{ t.conocenos.historiaTexto2 }}</p>
+      </article>
+    </div>
+    <div class="col-lg-5">
+      <article class="tarjeta h-100">
+        <h2 class="tarjeta-titulo"><i class="bi bi-stars"></i>{{ t.conocenos.trayectoria }}</h2>
+        <p>{{ t.conocenos.trayectoriaTexto }}</p>
+        <ul class="lista-check">
+          <li>{{ t.conocenos.trayectoriaItem1.replace('✔ ', '') }}</li>
+          <li>{{ t.conocenos.trayectoriaItem2.replace('✔ ', '') }}</li>
+          <li>{{ t.conocenos.trayectoriaItem3.replace('✔ ', '') }}</li>
+          <li>{{ t.conocenos.trayectoriaItem4.replace('✔ ', '') }}</li>
+        </ul>
+      </article>
     </div>
 
-    <!-- TRAYECTORIA -->
-    <div class="section-card">
-      <h2>{{ t.conocenos.trayectoria }}</h2>
-      <p>{{ t.conocenos.trayectoriaTexto }}</p>
-      <ul>
-        <li>{{ t.conocenos.trayectoriaItem1 }}</li>
-        <li>{{ t.conocenos.trayectoriaItem2 }}</li>
-        <li>{{ t.conocenos.trayectoriaItem3 }}</li>
-        <li>{{ t.conocenos.trayectoriaItem4 }}</li>
-      </ul>
+    <div class="col-md-6">
+      <article class="tarjeta h-100 destacada">
+        <h2 class="tarjeta-titulo"><i class="bi bi-bullseye"></i>{{ t.conocenos.mision }}</h2>
+        <p class="mb-0">{{ t.conocenos.misionTexto }}</p>
+      </article>
+    </div>
+    <div class="col-md-6">
+      <article class="tarjeta h-100 destacada">
+        <h2 class="tarjeta-titulo"><i class="bi bi-eye"></i>{{ t.conocenos.vision }}</h2>
+        <p class="mb-0">{{ t.conocenos.visionTexto }}</p>
+      </article>
     </div>
 
-    <!-- MISIÓN Y VISIÓN -->
-    <div class="section-grid">
-      <div class="section-card">
-        <h2>{{ t.conocenos.mision }}</h2>
-        <p>{{ t.conocenos.misionTexto }}</p>
-      </div>
-
-      <div class="section-card">
-        <h2>{{ t.conocenos.vision }}</h2>
-        <p>{{ t.conocenos.visionTexto }}</p>
-      </div>
+    <div class="col-lg-6">
+      <article class="tarjeta h-100">
+        <h2 class="tarjeta-titulo"><i class="bi bi-heart"></i>{{ t.conocenos.valores }}</h2>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="chip">{{ t.conocenos.valor1 }}</span>
+          <span class="chip">{{ t.conocenos.valor2 }}</span>
+          <span class="chip">{{ t.conocenos.valor3 }}</span>
+          <span class="chip">{{ t.conocenos.valor4 }}</span>
+          <span class="chip">{{ t.conocenos.valor5 }}</span>
+        </div>
+      </article>
     </div>
-
-    <!-- VALORES -->
-    <div class="section-card">
-      <h2>{{ t.conocenos.valores }}</h2>
-      <div class="valores-grid">
-        <div class="valor-item">{{ t.conocenos.valor1 }}</div>
-        <div class="valor-item">{{ t.conocenos.valor2 }}</div>
-        <div class="valor-item">{{ t.conocenos.valor3 }}</div>
-        <div class="valor-item">{{ t.conocenos.valor4 }}</div>
-        <div class="valor-item">{{ t.conocenos.valor5 }}</div>
-      </div>
+    <div class="col-lg-6">
+      <article class="tarjeta h-100">
+        <h2 class="tarjeta-titulo"><i class="bi bi-people"></i>{{ t.conocenos.estructura }}</h2>
+        <ul class="roles">
+          <li><strong>{{ t.conocenos.estructuraItem1 }}</strong> {{ t.conocenos.estructuraItem1Desc }}</li>
+          <li><strong>{{ t.conocenos.estructuraItem2 }}</strong> {{ t.conocenos.estructuraItem2Desc }}</li>
+          <li><strong>{{ t.conocenos.estructuraItem3 }}</strong> {{ t.conocenos.estructuraItem3Desc }}</li>
+          <li><strong>{{ t.conocenos.estructuraItem4 }}</strong> {{ t.conocenos.estructuraItem4Desc }}</li>
+        </ul>
+      </article>
     </div>
+  </div>
 
-    <!-- ESTRUCTURA -->
-    <div class="section-card">
-      <h2>{{ t.conocenos.estructura }}</h2>
-      <ul>
-        <li><strong>{{ t.conocenos.estructuraItem1 }}</strong> {{ t.conocenos.estructuraItem1Desc }}</li>
-        <li><strong>{{ t.conocenos.estructuraItem2 }}</strong> {{ t.conocenos.estructuraItem2Desc }}</li>
-        <li><strong>{{ t.conocenos.estructuraItem3 }}</strong> {{ t.conocenos.estructuraItem3Desc }}</li>
-        <li><strong>{{ t.conocenos.estructuraItem4 }}</strong> {{ t.conocenos.estructuraItem4Desc }}</li>
-      </ul>
+  <section class="cta tarjeta mt-4">
+    <div>
+      <h2 class="h4 mb-1">¿Listo para empezar?</h2>
+      <p class="text-muted mb-0">Encuentra un tutor o comparte lo que sabes con otros estudiantes.</p>
     </div>
-
-    <!-- ESTADÍSTICAS -->
-    <div class="stats-section">
-      <div class="stat-card">
-        <h3>+200</h3>
-        <p>{{ t.conocenos.clientesAtendidos }}</p>
-      </div>
-      <div class="stat-card">
-        <h3>+300</h3>
-        <p>{{ t.conocenos.propiedadesGestionadas }}</p>
-      </div>
-      <div class="stat-card">
-        <h3>3+</h3>
-        <p>{{ t.conocenos.anosExperiencia }}</p>
-      </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a routerLink="/tutores" class="btn btn-primary">Ver tutores</a>
+      <a routerLink="/ofrecer-asesoria" class="btn btn-outline-primary">Ser tutor</a>
     </div>
-
-    <!-- BOTÓN VOLVER -->
-    <div class="volver-container">
-      <button class="btn-volver" (click)="redirigirAlInicioMetodo()">
-        {{ t.conocenos.volverInicio }}
-      </button>
-    </div>
-
   </section>
-</main>
+</div>

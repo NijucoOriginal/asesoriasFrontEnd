@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { AuthService } from '../../servicios/auth.service';
 import { Router, RouterLink } from '@angular/router';
-import { NgIf } from '@angular/common';
+import { AuthAsideComponent } from '../auth-aside/auth-aside.component';
 import { RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha';
 import { environment } from '../../../environments/environment';
 import { IdiomaService } from '../../servicios/idioma.service';
@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-recuperar-contrasena',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgIf, RecaptchaModule],
+  imports: [ReactiveFormsModule, RouterLink, RecaptchaModule, AuthAsideComponent],
   providers: [
     {
       provide: RECAPTCHA_SETTINGS,
@@ -22,7 +22,6 @@ import { Subscription } from 'rxjs';
     },
   ],
   templateUrl: './recuperar-contrasena.component.html',
-  styleUrls: ['./recuperar-contrasena.component.css']
 })
 export class RecuperarContrasenaComponent implements OnInit, OnDestroy {
   isSubmitting = false;

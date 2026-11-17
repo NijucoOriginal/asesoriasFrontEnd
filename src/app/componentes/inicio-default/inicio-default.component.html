@@ -1,71 +1,88 @@
-<section class="container mb-5">
-  <div class="hero-section">
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-7">
-          @if (auth.isAuthenticated()) {
-            <h1 class="display-5 fw-bold mb-3">Hola, {{ nombre }} 👋</h1>
-          } @else {
-            <h1 class="display-5 fw-bold mb-3">Bienvenido a EDÉN Asesorías</h1>
+<div class="container aparecer">
+  <section class="hero-section">
+    <div class="hero-contenido">
+      <span class="etiqueta-hero"><i class="bi bi-mortarboard-fill me-1"></i> Universidad del Quindío</span>
+      @if (auth.isAuthenticated()) {
+        <h1 class="display-5 fw-bold mt-3 mb-3">Hola, {{ nombre }}. ¿Qué quieres aprender hoy?</h1>
+      } @else {
+        <h1 class="display-5 fw-bold mt-3 mb-3">Aprende con estudiantes que ya dominan tu materia</h1>
+      }
+      <p class="lead mb-4">Encuentra tutores de tu misma universidad, propón horario y precio, y agenda tu asesoría en minutos.</p>
+
+      <form class="buscador" (ngSubmit)="buscar()" role="search">
+        <i class="bi bi-search"></i>
+        <input type="search" name="q" [(ngModel)]="consulta" placeholder="¿Qué materia necesitas? Ej: Cálculo, Bases de datos…"
+               aria-label="Buscar materia o tutor" autocomplete="off">
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </form>
+
+      @if (materiasPopulares.length) {
+        <div class="populares">
+          <span>Populares:</span>
+          @for (m of materiasPopulares; track m) {
+            <a [routerLink]="['/tutores']" [queryParams]="{ materia: m }">{{ m }}</a>
           }
-          <p class="lead mb-4">
-            Conectamos estudiantes de la Universidad del Quindío con tutores para cada una de las materias de nuestros pregrados.
-          </p>
-          <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-primary btn-lg" routerLink="/tutores">Ver tutores disponibles</a>
-            @if (auth.isAuthenticated()) {
-              <a class="btn btn-light btn-lg rounded-pill" routerLink="/asesorias">Mis asesorías</a>
-            } @else {
-              <a class="btn btn-light btn-lg rounded-pill" routerLink="/registro">Crear cuenta</a>
-            }
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="container mb-5">
-  <div class="row g-4 text-center pasos">
-    <div class="col-md-4">
-      <div class="paso"><i class="bi bi-search"></i><h5>1. Busca un tutor</h5>
-        <p class="text-muted mb-0">Filtra por materia y revisa calificaciones y horas de experiencia.</p></div>
-    </div>
-    <div class="col-md-4">
-      <div class="paso"><i class="bi bi-calendar-plus"></i><h5>2. Solicita tu asesoría</h5>
-        <p class="text-muted mb-0">Propón fecha, horario y precio. El tutor puede aceptar o contraproponer.</p></div>
-    </div>
-    <div class="col-md-4">
-      <div class="paso"><i class="bi bi-star"></i><h5>3. Aprende y califica</h5>
-        <p class="text-muted mb-0">Al finalizar, deja tu reseña para ayudar a otros estudiantes.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="container mb-5">
-  <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-2">
-    <h2 class="section-title mb-0">Tutores destacados</h2>
-    @if (totalTutores > destacados.length) {
-      <a routerLink="/tutores" class="link-clickable">Ver los {{ totalTutores }} tutores <i class="bi bi-arrow-right"></i></a>
-    }
-  </div>
-
-  @if (cargando) {
-    <div class="text-center py-5"><div class="spinner-border text-success"></div></div>
-  } @else if (error) {
-    <div class="alert alert-warning">{{ error }}</div>
-  } @else if (destacados.length === 0) {
-    <div class="text-center text-muted py-5">
-      <i class="bi bi-people fs-1"></i>
-      <p class="mt-2">Aún no hay tutores registrados.</p>
-    </div>
-  } @else {
-    <div class="row mt-3">
-      @for (tutor of destacados; track tutor.id) {
-        <div class="col-12 col-md-6 col-lg-4 mb-4">
-          <app-tutor-card [tutor]="tutor"></app-tutor-card>
         </div>
       }
     </div>
-  }
-</section>
+  </section>
+
+  <section class="my-5">
+    <div class="row g-4 text-center">
+      <div class="col-md-4">
+        <div class="paso"><span class="icono"><i class="bi bi-search"></i></span><h3>Busca un tutor</h3>
+          <p class="text-muted mb-0">Filtra por materia y revisa calificaciones y horas de experiencia.</p></div>
+      </div>
+      <div class="col-md-4">
+        <div class="paso"><span class="icono"><i class="bi bi-calendar-plus"></i></span><h3>Solicita tu asesoría</h3>
+          <p class="text-muted mb-0">Propón fecha, horario y precio. El tutor puede aceptar o contraproponer.</p></div>
+      </div>
+      <div class="col-md-4">
+        <div class="paso"><span class="icono"><i class="bi bi-star"></i></span><h3>Aprende y califica</h3>
+          <p class="text-muted mb-0">Al finalizar, deja tu reseña para ayudar a otros estudiantes.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
+      <h2 class="section-title mb-0">Tutores destacados</h2>
+      @if (totalTutores > destacados.length) {
+        <a routerLink="/tutores" class="link-clickable">Ver los {{ totalTutores }} tutores <i class="bi bi-arrow-right"></i></a>
+      }
+    </div>
+
+    @if (cargando) {
+      <div class="row g-4">
+        @for (i of [1, 2, 3]; track i) { <div class="col-12 col-md-6 col-lg-4"><div class="tarjeta-esqueleto"></div></div> }
+      </div>
+    } @else if (error) {
+      <div class="alert alert-warning">{{ error }}</div>
+    } @else if (destacados.length === 0) {
+      <div class="tarjeta vacio">
+        <i class="bi bi-people"></i>
+        <h5>Aún no hay tutores registrados</h5>
+        <p>¡Sé el primero! Elige las materias que dominas y empieza a ayudar.</p>
+        <a routerLink="/ofrecer-asesoria" class="btn btn-primary">Quiero ser tutor</a>
+      </div>
+    } @else {
+      <div class="row g-4">
+        @for (tutor of destacados; track tutor.id) {
+          <div class="col-12 col-md-6 col-lg-4">
+            <app-tutor-card [tutor]="tutor"></app-tutor-card>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <section class="cta-tutor mb-5">
+    <div>
+      <h2 class="h3 mb-2">¿Eres bueno en alguna materia?</h2>
+      <p class="mb-0">Conviértete en tutor, ayuda a otros estudiantes y gana dinero con lo que ya sabes.</p>
+    </div>
+    <a [routerLink]="auth.isAuthenticated() ? '/ofrecer-asesoria' : '/registro'" class="btn btn-light btn-lg">
+      {{ auth.isAuthenticated() ? 'Elegir mis materias' : 'Crear mi cuenta' }} <i class="bi bi-arrow-right ms-1"></i>
+    </a>
+  </section>
+</div>

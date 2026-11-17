@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ChatService } from '../../servicios/chat.service';
 import { AuthService } from '../../servicios/auth.service';
+import { NotificacionService } from '../../servicios/notificacion.service';
 import { ConversacionDetalleDto, MensajeDto } from '../../dto/chat/chat.models';
 
 @Component({
@@ -38,7 +39,8 @@ export class ChatFlotanteComponent implements OnInit, OnDestroy, AfterViewChecke
 
   constructor(
     public chatService: ChatService,
-    public authService: AuthService
+    public authService: AuthService,
+    private notificaciones: NotificacionService
   ) {}
 
   ngOnInit(): void {
@@ -134,14 +136,29 @@ export class ChatFlotanteComponent implements OnInit, OnDestroy, AfterViewChecke
     const texto = this.textoMensaje.trim();
     if (!texto || !this.conversacionActiva) return;
 
-    this.chatService.enviarMensaje({
+    const enviado = this.chatService.enviarMensaje({
       conversacionId: this.conversacionActiva.id,
       receptorId: this.conversacionActiva.otroUsuarioId,
       contenido: texto,
     });
+    if (!enviado) {
+      this.notificaciones.error('Sin conexión con el chat. Reintentando… vuelve a enviar en unos segundos.');
+      return;
+    }
 
     this.textoMensaje = '';
     this.debeScroll = true;
+  }
+
+  iniciales(nombre?: string, apellido?: string): string {
+    return `${nombre?.[0] ?? ''}${apellido?.[0] ?? ''}`.toUpperCase();
+  }
+
+  /** Muestra la fecha solo cuando cambia de día respecto al mensaje anterior. */
+  mostrarFecha(i: number): boolean {
+    const msgs = this.conversacionActiva?.mensajes ?? [];
+    if (i === 0) return true;
+    return new Date(msgs[i].enviadoEn).toDateString() !== new Date(msgs[i - 1].enviadoEn).toDateString();
   }
 
   ngOnDestroy(): void {

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, Subject, map, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CrearUsuarioRequest, PerfilResponse, TokenResponse, UserResponse } from '../dto/modelos';
 import { AuthService } from './auth.service';
@@ -9,6 +9,10 @@ import { AuthService } from './auth.service';
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private readonly url = `${environment.backendUrl}/api/usuarios`;
+
+  /** Emite la nueva URL de la foto de perfil cuando el usuario la cambia (la navbar la escucha). */
+  private _fotoPerfil = new Subject<string | null>();
+  fotoPerfil$ = this._fotoPerfil.asObservable();
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -28,7 +32,10 @@ export class UsersService {
     form.append('imagen', archivo);
     return this.http
       .put<{ imagenPerfil: string }>(`${this.url}/imagen`, form)
-      .pipe(map(r => r.imagenPerfil));
+      .pipe(
+        map(r => r.imagenPerfil),
+        tap(url => this._fotoPerfil.next(url))
+      );
   }
 
   /**

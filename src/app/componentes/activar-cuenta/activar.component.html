@@ -1,102 +1,51 @@
-<div class="activation-container">
-  <div class="back-button">
-    <button type="button"  routerLink="/registro" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> {{ t.activarCuenta.volver }}
-    </button>
+<div class="auth-page">
+  <div class="auth-card aparecer">
+    <app-auth-aside titulo="Ya casi terminas"
+                    texto="Confirma tu correo para empezar a pedir y ofrecer asesorías."></app-auth-aside>
+
+    <div class="auth-body">
+      <a routerLink="/login" class="btn-volver"><i class="bi bi-arrow-left"></i> Ir a iniciar sesión</a>
+
+      @if (activada) {
+        <div class="text-center py-4">
+          <div class="auth-icono"><i class="bi bi-patch-check-fill"></i></div>
+          <h1>¡Cuenta activada!</h1>
+          <p class="subtitulo">Te llevaremos a iniciar sesión en un momento.</p>
+          <a routerLink="/login" class="btn btn-primary">Iniciar sesión ahora</a>
+        </div>
+      } @else {
+        <div class="auth-icono"><i class="bi bi-envelope-check"></i></div>
+        <h1>Activa tu cuenta</h1>
+        <p class="subtitulo">
+          Escribe el código de 6 caracteres que enviamos a
+          @if (userEmail) { <strong>{{ userEmail }}</strong>. } @else { tu correo. }
+          Revisa también la carpeta de spam.
+        </p>
+
+        <form (ngSubmit)="activar()">
+          <app-codigo-input [codigo]="codigo" (codigoChange)="codigo = $event; error = ''" (completo)="activar()"
+                            [deshabilitado]="enviando"></app-codigo-input>
+
+          @if (error) {
+            <div class="alert alert-danger py-2 small"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+          }
+
+          <button type="submit" class="btn btn-primary w-100 py-2" [disabled]="enviando || codigo.length !== 6">
+            @if (enviando) { <span class="spinner-border spinner-border-sm me-2"></span> }
+            Activar cuenta
+          </button>
+        </form>
+
+        <div class="auth-separador">¿No te llegó el código?</div>
+        <div class="d-flex gap-2">
+          <input type="email" class="form-control" [(ngModel)]="userEmail" placeholder="tu-correo@ejemplo.com" aria-label="Correo">
+          <button type="button" class="btn btn-outline-primary text-nowrap" (click)="reenviar()" [disabled]="reenviando || espera > 0">
+            @if (reenviando) { <span class="spinner-border spinner-border-sm"></span> }
+            @else if (espera > 0) { {{ espera }}s }
+            @else { Reenviar }
+          </button>
+        </div>
+      }
+    </div>
   </div>
-    <div class="brand-header">
-        <div class="brand-logo">EDÉN</div>
-        <div class="brand-subtitle">{{ t.comun.inmobiliaria }}</div>
-    </div>
-
-    <h2 class="text-center mb-4">{{ t.activarCuenta.titulo }}</h2>
-    <p class="text-center text-muted mb-4">{{ t.activarCuenta.subtitulo }}</p>
-
-    <div class="instructions">
-        <p class="mb-2"><strong>{{ t.activarCuenta.instrucciones }}</strong></p>
-        <ul>
-            <li>{{ t.activarCuenta.instruccion1 }}</li>
-            <li>{{ t.activarCuenta.instruccion2 }}</li>
-            <li>{{ t.activarCuenta.instruccion3 }}</li>
-        </ul>
-    </div>
-
-    <form [formGroup]="activationForm" (ngSubmit)="onSubmit()">
-        <div class="code-inputs">
-            <input
-                type="text"
-                class="code-input"
-                id="digit1"
-                maxlength="1"
-                formControlName="digit1"
-                (input)="onInput($event, 1)"
-                (keydown)="onKeyDown($event, 1)"
-                required>
-            <input
-                type="text"
-                class="code-input"
-                id="digit2"
-                maxlength="1"
-                formControlName="digit2"
-                (input)="onInput($event, 2)"
-                (keydown)="onKeyDown($event, 2)"
-                required>
-            <input
-                type="text"
-                class="code-input"
-                id="digit3"
-                maxlength="1"
-                formControlName="digit3"
-                (input)="onInput($event, 3)"
-                (keydown)="onKeyDown($event, 3)"
-                required>
-            <input
-                type="text"
-                class="code-input"
-                id="digit4"
-                maxlength="1"
-                formControlName="digit4"
-                (input)="onInput($event, 4)"
-                (keydown)="onKeyDown($event, 4)"
-                required>
-            <input
-                type="text"
-                class="code-input"
-                id="digit5"
-                maxlength="1"
-                formControlName="digit5"
-                (input)="onInput($event, 5)"
-                (keydown)="onKeyDown($event, 5)"
-                required>
-            <input
-                type="text"
-                class="code-input"
-                id="digit6"
-                maxlength="1"
-                formControlName="digit6"
-                (input)="onInput($event, 6)"
-                (keydown)="onKeyDown($event, 6)"
-                required>
-        </div>
-
-        <div class="success-message" [style.display]="successMessage ? 'block' : 'none'">
-            <i class="bi bi-check-circle-fill"></i> {{ successMessage }}
-        </div>
-
-        <div class="error-message" [style.display]="errorMessage ? 'block' : 'none'">
-            <i class="bi bi-exclamation-circle-fill"></i> {{ errorMessage }}
-        </div>
-
-        <button
-            type="submit"
-            class="btn btn-primary mb-3"
-            [disabled]="isSubmitting">
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" [style.display]="isSubmitting ? 'inline-block' : 'none'"></span>
-            {{ isSubmitting ? 'Verificando...' : t.activarCuenta.activar }}
-        </button>
-
-        <div class="resend-link">
-            {{ t.activarCuenta.noRecibiste }} <a href="#" (click)="resendCode(); $event.preventDefault()">{{ t.activarCuenta.reenviar }}</a>
-        </div>
-    </form>
 </div>

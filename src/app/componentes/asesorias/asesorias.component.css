@@ -1,45 +1,236 @@
-.asesoria {
+.barra-filtros {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.segmentos {
+  display: inline-flex;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.segmentos button {
   border: none;
-  border-radius: 15px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
-  border-left: 5px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: all 0.15s;
 }
 
-.asesoria.atencion {
-  border-left-color: #f5b301;
+.segmentos button span {
+  display: inline-block;
+  min-width: 22px;
+  font-size: 0.75rem;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--border);
+  color: var(--text);
 }
 
-.btn-tab {
-  border: 1px solid #ddd;
-  background: #fff;
-  font-weight: 500;
+.segmentos button.activo {
+  background: var(--surface);
+  color: var(--primary-700);
+  box-shadow: var(--shadow-sm);
 }
 
-.btn-tab.activo {
+.segmentos button.activo span {
   background: var(--primary);
-  border-color: var(--primary);
   color: #fff;
 }
 
-.rol-chip {
-  display: inline-block;
-  background: #f0f0f0;
-  border-radius: 10px;
-  padding: 1px 8px;
-  margin-right: 6px;
-  font-size: 0.75rem;
+.segmentos.pequenos button {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.85rem;
 }
 
-.datos i {
+.asesoria {
+  display: flex;
+  gap: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s;
+}
+
+.asesoria:hover {
+  box-shadow: var(--shadow);
+}
+
+.asesoria.atencion {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+.asesoria.esqueleto {
+  height: 150px;
+  background: linear-gradient(90deg, var(--surface-2), var(--surface), var(--surface-2));
+  background-size: 200% 100%;
+  animation: brillo 1.2s infinite;
+}
+
+@keyframes brillo {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.fecha {
+  flex: 0 0 70px;
+  height: 82px;
+  border-radius: 14px;
+  background: var(--primary-50);
+  color: var(--primary-700);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.fecha .mes,
+.fecha .dia-semana {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.fecha .dia {
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+
+.cuerpo {
+  flex: 1;
+  min-width: 0;
+}
+
+.titulo {
+  font-size: 1.12rem;
+  margin-bottom: 0.3rem;
+}
+
+.persona {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.persona strong {
+  color: var(--text);
+}
+
+.avatar-iniciales.mini {
+  width: 26px;
+  height: 26px;
+  font-size: 0.68rem;
+}
+
+.detalles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.detalles > span > i {
   color: var(--primary);
-  margin-right: 4px;
+  margin-right: 6px;
 }
 
 .descripcion {
-  color: #555;
+  margin: 0.75rem 0 0;
+  font-size: 0.88rem;
+  color: var(--muted);
 }
 
-.btn-sm.btn-primary,
-.btn-sm.btn-outline-primary {
-  padding: 4px 14px;
+.descripcion.destacada {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 1rem;
+}
+
+.btn-resena {
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  color: #9a6f00;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.btn-resena:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.girando {
+  display: inline-block;
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .segmentos {
+    display: flex;
+    width: 100%;
+  }
+
+  .segmentos button {
+    flex: 1;
+    padding: 0.45rem 0.4rem;
+    font-size: 0.8rem;
+  }
+
+  .segmentos button span {
+    margin-left: 2px;
+    min-width: 18px;
+  }
+
+  .asesoria {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .fecha {
+    flex: none;
+    flex-direction: row;
+    height: auto;
+    width: fit-content;
+    gap: 8px;
+    padding: 6px 12px;
+  }
+
+  .fecha .dia {
+    font-size: 1rem;
+  }
 }

@@ -1,6 +1,8 @@
 import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgClass, NgForOf, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
+import { AuthAsideComponent } from '../auth-aside/auth-aside.component';
+import { mensajeError } from '../../servicios/api-error';
 import { Router, RouterLink } from '@angular/router';
 import { RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha';
 import { Subscription } from 'rxjs';
@@ -10,12 +12,12 @@ import { ProgramasService } from '../../servicios/programas.service';
 import { RedireccionService } from '../../servicios/redireccion.service';
 import { IdiomaService } from '../../servicios/idioma.service';
 import { ES } from '../../i18n/es';
-import { ErrorResponse, ProgramaCatalogo } from '../../dto/modelos';
+import { ProgramaCatalogo } from '../../dto/modelos';
 
 @Component({
   selector: 'app-registro',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, RouterLink, NgClass, RecaptchaModule, FormsModule, NgForOf],
+  imports: [ReactiveFormsModule, RouterLink, NgClass, RecaptchaModule, FormsModule, AuthAsideComponent],
   providers: [
     { provide: RECAPTCHA_SETTINGS, useValue: { siteKey: environment.recaptcha.siteKey } as RecaptchaSettings },
   ],
@@ -25,7 +27,7 @@ import { ErrorResponse, ProgramaCatalogo } from '../../dto/modelos';
 export class RegistroComponent implements OnInit, OnDestroy {
   registroForm!: FormGroup;
   result = '';
-  classResult = 'success';
+  exito = false;
   verContra = false;
   verConfirmContra = false;
   cargando = false;
@@ -128,7 +130,7 @@ export class RegistroComponent implements OnInit, OnDestroy {
     }
     if (!this.captchaToken) {
       this.result = this.t.login?.errorCaptcha || 'Por favor, completa la verificación (Captcha).';
-      this.classResult = 'text-danger text-center fw-bold';
+      this.exito = false;
       return;
     }
 
@@ -152,21 +154,36 @@ export class RegistroComponent implements OnInit, OnDestroy {
         this.cargando = false;
         sessionStorage.removeItem('registroFormData');
         this.result = 'Usuario registrado correctamente. Redirigiendo...';
-        this.classResult = 'text-success text-center fw-bold';
+        this.exito = true;
         localStorage.setItem('pendingActivationEmail', v.email);
         setTimeout(() => this.router.navigate(['/activar'], { state: { email: v.email } }), 2000);
       },
       error: error => {
         this.cargando = false;
         this.recargarCaptcha();
-        this.classResult = 'text-danger text-center fw-bold';
-        if (error.error?.message) this.result = error.error.message;
-        else if (Array.isArray(error.error)) this.result = error.error.map((i: ErrorResponse) => i.message).join(', ');
-        else if (typeof error.error === 'string') this.result = error.error;
-        else this.result = 'Error al registrar el usuario. El correo o cédula ya podrían estar en uso.';
+        this.exito = false;
+        this.result = mensajeError(error, 'Error al registrar el usuario. El correo o cédula ya podrían estar en uso.');
         this.cdr.detectChanges();
       },
     });
+  }
+
+  /** Campo inválido y ya tocado: muestra el error. */
+  invalido(campo: string): boolean {
+    const c = this.registroForm.get(campo);
+    return !!c && c.invalid && c.touched;
+  }
+
+  /** Requisitos de la contraseña (mismo patrón que CrearUsuarioDto en el backend). */
+  get requisitos(): { texto: string; ok: boolean }[] {
+    const v: string = this.registroForm.get('contrasena')?.value ?? '';
+    return [
+      { texto: 'Mínimo 8 caracteres', ok: v.length >= 8 },
+      { texto: 'Una mayúscula', ok: /[A-Z]/.test(v) },
+      { texto: 'Una minúscula', ok: /[a-z]/.test(v) },
+      { texto: 'Un número', ok: /d/.test(v) },
+      { texto: 'Un símbolo (!@#$...)', ok: /[^a-zA-Z0-9]/.test(v) },
+    ];
   }
 
   passwordMatchValidator(group: FormGroup): any {

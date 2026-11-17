@@ -1,251 +1,91 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {Router, RouterLink} from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { ActivarCuentaService } from '../../servicios/activar-cuenta.service';
-import { IdiomaService } from '../../servicios/idioma.service';
-import { ES } from '../../i18n/es';
-import { Subscription } from 'rxjs';
+import { NotificacionService } from '../../servicios/notificacion.service';
+import { mensajeError } from '../../servicios/api-error';
+import { AuthAsideComponent } from '../auth-aside/auth-aside.component';
+import { CodigoInputComponent } from '../codigo-input/codigo-input.component';
 
+/** Activación de cuenta con el código enviado al correo (GET /api/auth/activate/{codigo}). */
 @Component({
   selector: 'app-activar',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, AuthAsideComponent, CodigoInputComponent],
   templateUrl: './activar.component.html',
-  styleUrls: ['./activar.component.css']
 })
-export class ActivarComponent implements OnInit, OnDestroy {
-  // Formulario reactivo para la activación
-  activationForm: FormGroup;
-  // Variables para controlar la UI
-  isSubmitting = false;
-  successMessage = '';
-  errorMessage = '';
-  // Almacenar el email del usuario
-  userEmail: string = '';
-  t: typeof ES;
-  private sub!: Subscription;
+export class ActivarComponent implements OnInit {
+  codigo = '';
+  userEmail = '';
+  enviando = false;
+  reenviando = false;
+  activada = false;
+  error = '';
+  /** Segundos que faltan para poder reenviar el código. */
+  espera = 0;
+  private timer?: ReturnType<typeof setInterval>;
 
   constructor(
-    private formBuilder: FormBuilder,
     private router: Router,
-    private activarCuentaService: ActivarCuentaService,
-    public idiomaService: IdiomaService
-  ) {
-    this.t = idiomaService.t;
-    // Inicializar el formulario con 6 campos para el código de activación
-    this.activationForm = this.formBuilder.group({
-      digit1: ['', [Validators.required, Validators.pattern('[a-zA-Z0-9]')]],
-      digit2: ['', [Validators.required, Validators.pattern('[a-zA-Z0-9]')]],
-      digit3: ['', [Validators.required, Validators.pattern('[a-zA-Z0-9]')]],
-      digit4: ['', [Validators.required, Validators.pattern('[a-zA-Z0-9]')]],
-      digit5: ['', [Validators.required, Validators.pattern('[a-zA-Z0-9]')]],
-      digit6: ['', [Validators.required, Validators.pattern('[a-zA-Z0-9]')]]
-    });
-  }
+    private service: ActivarCuentaService,
+    private notificaciones: NotificacionService
+  ) {}
 
   ngOnInit(): void {
-    this.sub = this.idiomaService.traducciones$.subscribe(t => {
-      this.t = t;
-    });
-
-    // Intentar obtener el email del usuario del localStorage o de parámetros de la ruta
-    const navigation = this.router.getCurrentNavigation();
-    if (navigation?.extras?.state?.['email']) {
-      this.userEmail = navigation.extras.state['email'];
-      // Guardar en localStorage para uso posterior
-      localStorage.setItem('pendingActivationEmail', this.userEmail);
-    } else {
-      // Recuperar del localStorage si existe
-      this.userEmail = localStorage.getItem('pendingActivationEmail') || '';
-    }
+    const estado = this.router.getCurrentNavigation()?.extras?.state ?? history.state;
+    this.userEmail = estado?.['email'] || localStorage.getItem('pendingActivationEmail') || '';
+    if (this.userEmail) localStorage.setItem('pendingActivationEmail', this.userEmail);
   }
 
-  ngOnDestroy(): void {
-    this.sub?.unsubscribe();
-  }
-
-  /**
-   * Maneja el evento de envío del formulario de activación
-   */
-  onSubmit(): void {
-    // Verificar que el formulario sea válido
-    if (this.activationForm.invalid) {
-      // Verificar si hay errores reales en los campos
-      const values = this.activationForm.value;
-      const isEmpty = !values.digit1 && !values.digit2 && !values.digit3 &&
-                      !values.digit4 && !values.digit5 && !values.digit6;
-
-      if (isEmpty) {
-        this.errorMessage = 'Por favor, completa todos los campos del código.';
-        this.showAlert('error', 'Por favor, completa todos los campos del código.');
-        return;
-      }
-
-      // Verificar si hay campos con errores de validación
-      let hasErrors = false;
-      for (let i = 1; i <= 6; i++) {
-        const control = this.activationForm.get(`digit${i}`);
-        if (control && (control.errors?.['required'] || control.errors?.['pattern'])) {
-          hasErrors = true;
-          break;
-        }
-      }
-
-      if (hasErrors) {
-        this.errorMessage = 'Por favor, completa todos los campos del código con dígitos válidos.';
-        this.showAlert('error', 'Por favor, completa todos los campos del código con dígitos válidos.');
-        return;
-      }
-    }
-
-    // Marcar que se está procesando la solicitud
-    this.isSubmitting = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    // Obtener el código de activación del formulario ej : cf5bb2
-    const activationCode = this.getActivationCode();
-
-    // Verificar el código con el backend
-    this.activarCuentaService.activateAccount(activationCode).subscribe({
-      next: (response: string) => {
-        this.successMessage = response || 'Usuario verificado correctamente';
-        this.showAlert('success', this.successMessage);
-        // Limpiar el email almacenado
-        localStorage.removeItem('pendingActivationEmail');
-        // Redirigir al login después de activar la cuenta
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 1500);
-      },
-      error: (error) => {
-        console.error('Error al activar la cuenta:', error);
-        if (error.status === 0) {
-          this.errorMessage = 'Error de conexión. Por favor, verifica tu conexión a internet.';
-        } else if (typeof error.error === 'string' && error.error) {
-          // El backend responde texto plano: "Código de activación inválido o expirado."
-          this.errorMessage = error.error;
-        } else if (error.status >= 500) {
-          this.errorMessage = 'Error en el servidor. Por favor, inténtalo más tarde.';
-        } else {
-          this.errorMessage = 'Código incorrecto o ha expirado. Por favor, inténtalo nuevamente.';
-        }
-        this.showAlert('error', this.errorMessage);
-        this.isSubmitting = false;
-      }
-    });
-  }
-
-  /**
-   * Muestra una alerta visual del resultado de la operación
-   * @param type Tipo de alerta (success o error)
-   * @param message Mensaje a mostrar
-   */
-  showAlert(type: 'success' | 'error', message: string): void {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} mt-3`;
-    alertDiv.textContent = message;
-    alertDiv.style.position = 'fixed';
-    alertDiv.style.top = '20px';
-    alertDiv.style.right = '20px';
-    alertDiv.style.zIndex = '9999';
-    alertDiv.style.padding = '15px';
-    alertDiv.style.borderRadius = '5px';
-    alertDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-
-    if (type === 'success') {
-      alertDiv.style.backgroundColor = '#d4edda';
-      alertDiv.style.color = '#155724';
-      alertDiv.style.borderColor = '#c3e6cb';
-    } else {
-      alertDiv.style.backgroundColor = '#f8d7da';
-      alertDiv.style.color = '#721c24';
-      alertDiv.style.borderColor = '#f5c6cb';
-    }
-
-    document.body.appendChild(alertDiv);
-
-    // Eliminar la alerta después de 3 segundos
-    setTimeout(() => {
-      if (alertDiv.parentNode) {
-        alertDiv.parentNode.removeChild(alertDiv);
-      }
-    }, 3000);
-  }
-
-  /**
-   * Obtiene el código de activación completo del formulario
-   * @returns El código de activación de 6 dígitos
-   */
-  private getActivationCode(): string {
-    const values = this.activationForm.value;
-    return `${values.digit1}${values.digit2}${values.digit3}${values.digit4}${values.digit5}${values.digit6}`;
-  }
-
-  /**
-   * Maneja el reenvío del código de activación
-   */
-  resendCode(): void {
-    // Solicitar un nuevo código al backend
-    if (!this.userEmail) {
-      // Si no tenemos el email, mostrar un mensaje de error
-      this.showAlert('error', 'No se pudo encontrar el correo electrónico del usuario. Por favor, regístrate nuevamente.');
+  activar(): void {
+    if (this.codigo.length !== 6 || this.enviando) {
+      this.error = 'Ingresa los 6 caracteres del código.';
       return;
     }
-
-    this.activarCuentaService.resendActivationCode(this.userEmail).subscribe({
-      next: (response: string) => {
-        this.showAlert('success', response || 'Se ha enviado un nuevo código a tu correo electrónico.');
+    this.enviando = true;
+    this.error = '';
+    this.service.activateAccount(this.codigo).subscribe({
+      next: msg => {
+        this.enviando = false;
+        this.activada = true;
+        localStorage.removeItem('pendingActivationEmail');
+        this.notificaciones.exito(msg || 'Cuenta activada exitosamente.');
+        setTimeout(() => this.router.navigate(['/login']), 2200);
       },
-      error: (error) => {
-        console.error('Error al reenviar el código:', error);
-        let errorMessage = '';
-        if (error.status === 0) {
-          errorMessage = 'Error de conexión. Por favor, verifica tu conexión a internet.';
-        } else if (error.error && error.error.message) {
-          errorMessage = error.error.message;
-        } else {
-          errorMessage = 'Error al reenviar el código. Por favor, inténtalo más tarde.';
-        }
-        this.showAlert('error', errorMessage);
-      }
+      error: err => {
+        this.enviando = false;
+        this.error = mensajeError(err, 'Código incorrecto o expirado. Inténtalo de nuevo.');
+      },
     });
   }
 
-  /**
-   * Maneja la navegación entre campos de entrada del código
-   * @param event Evento del teclado
-   * @param currentIndex Índice del campo actual
-   */
-  onKeyDown(event: KeyboardEvent, currentIndex: number): void {
-    const input = event.target as HTMLInputElement;
-
-    // Si se presiona "Backspace" y el campo está vacío, moverse al campo anterior
-    if (event.key === 'Backspace' && input.value === '' && currentIndex > 1) {
-      const previousInput = document.getElementById(`digit${currentIndex - 1}`) as HTMLInputElement;
-      if (previousInput) {
-        previousInput.focus();
-      }
+  reenviar(): void {
+    const email = this.userEmail.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.error = 'Escribe un correo válido para reenviarte el código.';
+      return;
     }
+    this.reenviando = true;
+    this.service.resendActivationCode(email).subscribe({
+      next: msg => {
+        this.reenviando = false;
+        localStorage.setItem('pendingActivationEmail', email);
+        this.notificaciones.exito(msg || 'Te enviamos un nuevo código.');
+        this.iniciarEspera();
+      },
+      error: err => {
+        this.reenviando = false;
+        this.notificaciones.error(mensajeError(err, 'No se pudo reenviar el código.'));
+      },
+    });
   }
 
-  /**
-   * Maneja el evento de entrada en los campos del código
-   * @param event Evento de entrada
-   * @param currentIndex Índice del campo actual
-   */
-  onInput(event: Event, currentIndex: number): void {
-    const input = event.target as HTMLInputElement;
-
-    // Limpiar mensajes de error cuando el usuario empieza a escribir
-    this.errorMessage = '';
-
-    // Si se ingresa un dígito, moverse al siguiente campo
-    if (input.value.length === 1 && currentIndex < 6) {
-      const nextInput = document.getElementById(`digit${currentIndex + 1}`) as HTMLInputElement;
-      if (nextInput) {
-        nextInput.focus();
-      }
-    }
+  private iniciarEspera(): void {
+    this.espera = 60;
+    clearInterval(this.timer);
+    this.timer = setInterval(() => {
+      this.espera--;
+      if (this.espera <= 0) clearInterval(this.timer);
+    }, 1000);
   }
 }

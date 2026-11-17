@@ -1,52 +1,45 @@
 <footer>
   <div class="container">
-    <div class="row">
-      <div class="col-md-4 mb-4">
-        <h4 class="mb-4">{{ t.comun.eden }} {{ t.comun.inmobiliaria }}</h4>
-        <p>{{ t.footer.descripcion }}</p>
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <a routerLink="/" class="footer-marca">EDÉN <small>Asesorías</small></a>
+        <p class="mt-3 mb-0">{{ t.footer.descripcion }}</p>
       </div>
 
-      <div class="col-md-2 mb-4">
-        <h5 class="mb-4">{{ t.footer.enlacesRapidos }}</h5>
-        <ul class="list-unstyled">
-          <!--<li class="mb-2">
-            <a (click)="redireccionamiento.redirigirAHome()" class="text-white text-decoration-none link-clickable">
-              {{ t.footer.inicio }}
-            </a>
-          </li>-->
-          <!--<li class="mb-2">
-            <a (click)="redirigirARegistroInmueble()" class="text-white text-decoration-none link-clickable">
-              {{ t.footer.hagamosNegocios }}
-            </a>
-          </li>-->
-          <li class="mb-2">
-            <a (click)="redireccionamiento.redirigirAPoliticaDatos()" class="text-white text-decoration-none link-clickable">
-              {{ t.footer.politicaDatos }}
-            </a>
-          </li>
+      <div class="col-6 col-lg-2">
+        <h5>Plataforma</h5>
+        <ul class="list-unstyled footer-links">
+          <li><a routerLink="/tutores">Tutores</a></li>
+          <li><a routerLink="/ofrecer-asesoria">Ser tutor</a></li>
+          <li><a routerLink="/asesorias">Mis asesorías</a></li>
         </ul>
       </div>
 
-      <div class="col-md-3 mb-4">
-        <h5 class="mb-4">{{ t.footer.contacto }}</h5>
-        <p><i class="bi bi-geo-alt me-2"></i> {{ t.footer.sede }}</p>
-        <p><i class="bi bi-telephone me-2"></i> (+57) 3217516293</p>
-        <p><i class="bi bi-envelope me-2"></i> info&#64;edenasesorias.com</p>
+      <div class="col-6 col-lg-2">
+        <h5>{{ t.footer.enlacesRapidos }}</h5>
+        <ul class="list-unstyled footer-links">
+          <li><a routerLink="/conocenos">Conócenos</a></li>
+          <li><a routerLink="/contactenos">Contáctenos</a></li>
+          <li><a routerLink="/politicaDatos">Política de datos</a></li>
+        </ul>
       </div>
 
-      <div class="col-md-3 mb-4">
-        <h5 class="mb-4">{{ t.footer.siguenos }}</h5>
-        <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
-        <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
-        <a href="#" class="social-icon"><i class="bi bi-twitter"></i></a>
-        <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+      <div class="col-lg-4">
+        <h5>{{ t.footer.contacto }}</h5>
+        <ul class="list-unstyled footer-contacto">
+          <li><i class="bi bi-geo-alt"></i> {{ t.footer.sede }}</li>
+          <li><i class="bi bi-telephone"></i> (+57) 321 751 6293</li>
+          <li><i class="bi bi-envelope"></i> info&#64;edenasesorias.com</li>
+        </ul>
+        <div class="mt-3">
+          <a href="https://www.facebook.com" target="_blank" rel="noopener" class="social-icon" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a href="https://www.instagram.com" target="_blank" rel="noopener" class="social-icon" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="https://www.linkedin.com" target="_blank" rel="noopener" class="social-icon" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+        </div>
       </div>
     </div>
 
-    <hr class="mt-4 mb-4">
-
-    <div class="text-center">
-      <p>{{ t.footer.derechos }}</p>
-    </div>
+    <hr class="footer-hr">
+    <p class="text-center small mb-0">{{ t.footer.derechos }}</p>
   </div>
 </footer>

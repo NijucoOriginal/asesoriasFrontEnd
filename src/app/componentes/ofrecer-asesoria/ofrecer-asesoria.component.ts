@@ -64,6 +64,16 @@ export class OfrecerAsesoriaComponent implements OnInit {
     return this.catalogo.filter(m => m.programaId === this.programaId);
   }
 
+  filtro = '';
+
+  get materiasFiltradas(): MateriaCatalogo[] {
+    const q = this.filtro.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+    if (!q) return this.materiasDeMiCarrera;
+    return this.materiasDeMiCarrera.filter(m =>
+      m.nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(q)
+    );
+  }
+
   get hayCambios(): boolean {
     if (this.seleccionadas.size !== this.originales.size) return true;
     for (const id of this.seleccionadas) if (!this.originales.has(id)) return true;

@@ -9,6 +9,7 @@ import { AuthService } from '../../servicios/auth.service';
 import { ChatService } from '../../servicios/chat.service';
 import { NotificacionService } from '../../servicios/notificacion.service';
 import { mensajeError } from '../../servicios/api-error';
+import { ConfirmacionService } from '../../servicios/confirmacion.service';
 import { aInputLocal, aLocalDateTime, ahoraInputLocal, parseLocal } from '../../servicios/fechas';
 import {
   AsesoriaResponse,
@@ -62,7 +63,8 @@ export class AsesoriasComponent implements OnInit {
     private tutores: TutoresService,
     private auth: AuthService,
     private chat: ChatService,
-    private notificaciones: NotificacionService
+    private notificaciones: NotificacionService,
+    private confirmacion: ConfirmacionService
   ) {}
 
   ngOnInit(): void {
@@ -179,18 +181,31 @@ export class AsesoriasComponent implements OnInit {
     this.ejecutar(a, this.service.aceptar(a.id), 'Asesoría aceptada.');
   }
 
-  rechazar(a: AsesoriaResponse): void {
-    if (!confirm(`¿Seguro que quieres rechazar la asesoría de ${a.materiaNombre}?`)) return;
-    this.ejecutar(a, this.service.rechazar(a.id), 'Asesoría rechazada.');
+  async rechazar(a: AsesoriaResponse): Promise<void> {
+    const ok = await this.confirmacion.preguntar({
+      titulo: '¿Rechazar la asesoría?',
+      mensaje: `${a.materiaNombre} con ${this.contraparte(a).nombre}. Esta acción no se puede deshacer.`,
+      confirmar: 'Sí, rechazar',
+      peligro: true,
+      icono: 'bi-x-circle',
+    });
+    if (ok) this.ejecutar(a, this.service.rechazar(a.id), 'Asesoría rechazada.');
   }
 
-  cancelar(a: AsesoriaResponse): void {
+  async cancelar(a: AsesoriaResponse): Promise<void> {
     if (this.fueraDeVentana(a)) {
       this.notificaciones.error(`Solo puedes cancelar hasta ${HORAS_LIMITE_CANCELACION} horas antes de la asesoría.`);
       return;
     }
-    if (!confirm(`¿Seguro que quieres cancelar la asesoría de ${a.materiaNombre}?`)) return;
-    this.ejecutar(a, this.service.cancelar(a.id), 'Asesoría cancelada.');
+    const ok = await this.confirmacion.preguntar({
+      titulo: '¿Cancelar la asesoría?',
+      mensaje: `${a.materiaNombre} con ${this.contraparte(a).nombre}. Se le notificará a la otra persona.`,
+      confirmar: 'Sí, cancelar',
+      cancelar: 'Volver',
+      peligro: true,
+      icono: 'bi-slash-circle',
+    });
+    if (ok) this.ejecutar(a, this.service.cancelar(a.id), 'Asesoría cancelada.');
   }
 
   mensaje(a: AsesoriaResponse): void {
@@ -292,9 +307,17 @@ export class AsesoriasComponent implements OnInit {
     });
   }
 
-  eliminarResena(): void {
+  async eliminarResena(): Promise<void> {
     const a = this.resenaDe;
-    if (!a || !confirm('¿Eliminar tu reseña?')) return;
+    if (!a) return;
+    const ok = await this.confirmacion.preguntar({
+      titulo: '¿Eliminar tu reseña?',
+      mensaje: 'La calificación dejará de contar en el promedio del tutor.',
+      confirmar: 'Eliminar',
+      peligro: true,
+      icono: 'bi-trash',
+    });
+    if (!ok) return;
     this.procesando = a.id;
     this.service.eliminarResena(a.id).subscribe({
       next: () => {

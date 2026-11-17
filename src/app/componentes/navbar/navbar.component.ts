@@ -1,45 +1,55 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
 import { AuthService } from '../../servicios/auth.service';
 import { ChatService } from '../../servicios/chat.service';
+import { UsersService } from '../../servicios/users.service';
 import { TokenClaims } from '../../dto/modelos';
 
 /** Barra superior única de la app; cambia según haya sesión y el estado de la cuenta. */
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   sesion: TokenClaims | null = null;
+  foto: string | null = null;
   noLeidos = 0;
   menuAbierto = false;
-  ocultar = false;
   private subs: Subscription[] = [];
 
-  /** Páginas con diseño propio a pantalla completa. */
-  private readonly rutasSinNavbar = ['/login', '/registro', '/activar', '/recuperar', '/cambiar-contrasena'];
-
-  constructor(private auth: AuthService, private chat: ChatService, private router: Router) {}
+  constructor(
+    private auth: AuthService,
+    private chat: ChatService,
+    private users: UsersService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    this.subs.push(this.auth.sesion$.subscribe(s => (this.sesion = s)));
-    this.subs.push(this.chat.totalNoLeidos$.subscribe(n => (this.noLeidos = n)));
     this.subs.push(
-      this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(e => {
-        const url = (e as NavigationEnd).urlAfterRedirects.split('?')[0];
-        this.ocultar = this.rutasSinNavbar.some(r => url === r || url.startsWith(r + '/'));
-        this.menuAbierto = false;
+      this.auth.sesion$.subscribe(s => {
+        const cambioUsuario = s?.id !== this.sesion?.id;
+        this.sesion = s;
+        if (!s) this.foto = null;
+        else if (cambioUsuario) this.cargarFoto();
       })
+    );
+    this.subs.push(this.chat.totalNoLeidos$.subscribe(n => (this.noLeidos = n)));
+    this.subs.push(this.users.fotoPerfil$.subscribe(url => (this.foto = url)));
+    this.subs.push(
+      this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => (this.menuAbierto = false))
     );
   }
 
   ngOnDestroy(): void {
     this.subs.forEach(s => s.unsubscribe());
+  }
+
+  private cargarFoto(): void {
+    this.users.miPerfil().subscribe({ next: p => (this.foto = p.imagenPerfil), error: () => {} });
   }
 
   get activo(): boolean {

@@ -1,14 +1,129 @@
-.paso {
-  background: #fff;
-  border-radius: 15px;
-  padding: 28px 20px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
-  height: 100%;
+.hero-contenido {
+  max-width: 720px;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
-.paso i {
-  font-size: 2rem;
+.etiqueta-hero {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.buscador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border-radius: 999px;
+  padding: 6px 6px 6px 18px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  max-width: 620px;
+}
+
+.buscador i {
+  color: #66756f;
+}
+
+.buscador input {
+  flex: 1;
+  border: none;
+  outline: none;
+  min-width: 0;
+  font-size: 1rem;
+  background: transparent;
+  color: #1c2a25;
+}
+
+.populares {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1rem;
+  font-size: 0.88rem;
+}
+
+.populares a {
+  color: #fff;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  padding: 3px 12px;
+  transition: background 0.15s;
+}
+
+.populares a:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.paso {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem 1.5rem;
+  height: 100%;
+  box-shadow: var(--shadow-sm);
+}
+
+.paso h3 {
+  font-size: 1.1rem;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.paso .icono {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--primary-50);
   color: var(--primary);
-  display: block;
-  margin-bottom: 10px;
+  font-size: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cta-tutor {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  background: linear-gradient(120deg, var(--primary-700), var(--primary));
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 2.25rem 2.5rem;
+}
+
+.cta-tutor h2,
+.cta-tutor p {
+  color: #fff;
+}
+
+.cta-tutor .btn-light {
+  color: #0b7a55;
+  background: #fff;
+}
+
+@media (max-width: 575.98px) {
+  .buscador {
+    border-radius: 18px;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+  }
+
+  .buscador .btn {
+    width: 100%;
+  }
+
+  .cta-tutor {
+    padding: 1.75rem;
+  }
 }

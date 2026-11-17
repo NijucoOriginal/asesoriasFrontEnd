@@ -1,14 +1,20 @@
-<div class="container py-4">
-  <h2 class="section-title">Tutores disponibles</h2>
+<div class="container pb-5 aparecer">
+  <header class="page-header">
+    <h1>Encuentra tu tutor</h1>
+    <p>Estudiantes de la Universidad del Quindío listos para ayudarte en cada materia.</p>
+  </header>
 
   <div class="search-box mb-4">
     <div class="row g-3 align-items-end">
       <div class="col-md-5">
         <label class="form-label" for="busqueda">Buscar</label>
-        <input id="busqueda" type="search" class="form-control" [(ngModel)]="busqueda"
-               placeholder="Nombre, carrera o materia">
+        <div class="input-icono">
+          <i class="bi bi-search"></i>
+          <input id="busqueda" type="search" class="form-control" [(ngModel)]="busqueda"
+                 placeholder="Nombre, carrera o materia" autocomplete="off">
+        </div>
       </div>
-      <div class="col-md-4">
+      <div class="col-sm-6 col-md-4">
         <label class="form-label" for="materia">Materia</label>
         <select id="materia" class="form-select" [(ngModel)]="materia">
           <option value="">Todas las materias</option>
@@ -17,21 +23,22 @@
           }
         </select>
       </div>
-      <div class="col-md-3">
+      <div class="col-sm-6 col-md-3">
         <label class="form-label" for="orden">Ordenar por</label>
         <select id="orden" class="form-select" [(ngModel)]="orden">
           <option value="calificacion">Mejor calificados</option>
           <option value="horas">Más horas de tutoría</option>
-          <option value="nombre">Nombre</option>
+          <option value="nombre">Nombre (A–Z)</option>
         </select>
       </div>
     </div>
   </div>
 
   @if (cargando) {
-    <div class="text-center py-5">
-      <div class="spinner-border text-success"></div>
-      <p class="mt-2 text-muted">Cargando tutores...</p>
+    <div class="row g-4">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="col-12 col-md-6 col-lg-4"><div class="tarjeta-esqueleto"></div></div>
+      }
     </div>
   } @else if (error) {
     <div class="alert alert-warning d-flex justify-content-between align-items-center">
@@ -40,19 +47,26 @@
     </div>
   } @else {
     @let lista = filtrados;
-    <p class="text-muted small">{{ lista.length }} de {{ tutores.length }} tutores</p>
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <p class="text-muted small mb-0">
+        Mostrando <strong class="text-body">{{ lista.length }}</strong> de {{ tutores.length }} tutores
+        @if (materia) { en <strong class="text-body">{{ materia }}</strong> }
+      </p>
+      @if (busqueda || materia) {
+        <button class="btn btn-sm btn-light" (click)="limpiar()"><i class="bi bi-x-lg me-1"></i>Limpiar filtros</button>
+      }
+    </div>
     @if (lista.length === 0) {
-      <div class="text-center py-5 text-muted">
-        <i class="bi bi-person-x fs-1"></i>
-        <p class="mt-2">No hay tutores que coincidan con tu búsqueda.</p>
-        @if (busqueda || materia) {
-          <button class="btn btn-outline-primary" (click)="limpiar()">Limpiar filtros</button>
-        }
+      <div class="tarjeta vacio">
+        <i class="bi bi-person-x"></i>
+        <h5>{{ tutores.length ? 'No hay tutores que coincidan con tu búsqueda' : 'Aún no hay tutores registrados' }}</h5>
+        <p>¿Dominas alguna materia? Ayuda a otros estudiantes como tutor.</p>
+        <a routerLink="/ofrecer-asesoria" class="btn btn-outline-primary">Quiero ser tutor</a>
       </div>
     } @else {
-      <div class="row">
+      <div class="row g-4">
         @for (tutor of lista; track tutor.id) {
-          <div class="col-12 col-md-6 col-lg-4 mb-4">
+          <div class="col-12 col-md-6 col-lg-4">
             <app-tutor-card [tutor]="tutor"></app-tutor-card>
           </div>
         }

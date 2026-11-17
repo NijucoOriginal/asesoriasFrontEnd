@@ -1,55 +1,55 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UsersService } from '../../servicios/users.service';
 import { AuthService } from '../../servicios/auth.service';
 import { ChatService } from '../../servicios/chat.service';
 import { NotificacionService } from '../../servicios/notificacion.service';
 import { mensajeError } from '../../servicios/api-error';
+import { AuthAsideComponent } from '../auth-aside/auth-aside.component';
+import { CodigoInputComponent } from '../codigo-input/codigo-input.component';
 
 /** Reactivación de cuentas INACTIVAS (CuentaController /api/usuarios/reactivar/*). */
 @Component({
   selector: 'app-reactivar',
   standalone: true,
-  imports: [FormsModule],
+  imports: [AuthAsideComponent, CodigoInputComponent],
   template: `
-    <div class="container py-5">
-      <div class="card caja mx-auto p-4">
-        <div class="text-center mb-3">
-          <i class="bi bi-arrow-repeat icono"></i>
-          <h3 class="mt-2">Reactiva tu cuenta</h3>
-          <p class="text-muted mb-0">
+    <div class="auth-page">
+      <div class="auth-card aparecer">
+        <app-auth-aside titulo="Te extrañamos" texto="Reactiva tu cuenta para volver a pedir y ofrecer asesorías."></app-auth-aside>
+        <div class="auth-body">
+          <div class="auth-icono"><i class="bi bi-arrow-repeat"></i></div>
+          <h1>Reactiva tu cuenta</h1>
+          <p class="subtitulo">
             Hola {{ auth.obtenerNombreUsuario() }}, tu cuenta está desactivada.
-            Te enviaremos un código a <strong>{{ auth.getUserEmail() }}</strong> para reactivarla.
+            @if (!codigoEnviado) {
+              Te enviaremos un código a <strong>{{ auth.getUserEmail() }}</strong> para reactivarla.
+            } @else {
+              Escribe el código que enviamos a <strong>{{ auth.getUserEmail() }}</strong>.
+            }
           </p>
-        </div>
 
-        @if (!codigoEnviado) {
-          <button class="btn btn-primary w-100" (click)="solicitar()" [disabled]="enviando">
-            @if (enviando) { <span class="spinner-border spinner-border-sm me-1"></span> }
-            Enviarme el código
-          </button>
-        } @else {
-          <form (ngSubmit)="confirmar()">
-            <label class="form-label" for="codigo">Código de 6 dígitos</label>
-            <input id="codigo" name="codigo" class="form-control text-center codigo" maxlength="6" inputmode="numeric"
-                   autocomplete="one-time-code" [(ngModel)]="codigo" placeholder="••••••" required>
-            <button type="submit" class="btn btn-primary w-100 mt-3" [disabled]="codigo.trim().length !== 6 || enviando">
-              @if (enviando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          @if (!codigoEnviado) {
+            <button class="btn btn-primary w-100 py-2" (click)="solicitar()" [disabled]="enviando">
+              @if (enviando) { <span class="spinner-border spinner-border-sm me-2"></span> }
+              Enviarme el código
+            </button>
+          } @else {
+            <app-codigo-input [codigo]="codigo" (codigoChange)="codigo = $event" (completo)="confirmar()" [deshabilitado]="enviando"></app-codigo-input>
+            <button class="btn btn-primary w-100 py-2" (click)="confirmar()" [disabled]="codigo.length !== 6 || enviando">
+              @if (enviando) { <span class="spinner-border spinner-border-sm me-2"></span> }
               Reactivar cuenta
             </button>
-            <button type="button" class="btn btn-link w-100 mt-1" (click)="solicitar()" [disabled]="enviando">Reenviar código</button>
-          </form>
-        }
-        <button type="button" class="btn btn-outline-secondary rounded-pill w-100 mt-3" (click)="salir()">Cerrar sesión</button>
+            <button type="button" class="btn btn-ghost w-100 mt-2" (click)="solicitar()" [disabled]="enviando">Reenviar código</button>
+          }
+          <div class="auth-separador">o</div>
+          <button type="button" class="btn btn-outline-secondary w-100" (click)="salir()">
+            <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+          </button>
+        </div>
       </div>
     </div>
   `,
-  styles: [`
-    .caja { max-width: 440px; border: none; border-radius: 16px; box-shadow: 0 5px 20px rgba(0,0,0,.1); }
-    .icono { font-size: 2.6rem; color: var(--primary); }
-    .codigo { font-size: 1.6rem; letter-spacing: .5rem; }
-  `],
 })
 export class ReactivarComponent {
   codigoEnviado = false;
@@ -82,8 +82,9 @@ export class ReactivarComponent {
   }
 
   confirmar(): void {
+    if (this.codigo.length !== 6 || this.enviando) return;
     this.enviando = true;
-    this.users.confirmarReactivacion(this.codigo.trim()).subscribe({
+    this.users.confirmarReactivacion(this.codigo).subscribe({
       next: () => {
         this.enviando = false;
         this.notificaciones.exito('¡Tu cuenta fue reactivada!');

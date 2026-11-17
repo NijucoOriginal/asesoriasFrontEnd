@@ -1,23 +1,39 @@
-footer {
-  background-color: #333;
-  color: white;
-  padding: 60px 0 30px;
+.footer-marca {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: -0.02em;
 }
 
-.social-icon {
-  display: inline-block;
-  width: 40px;
-  height: 40px;
-  background-color: var(--primary);
-  color: white;
-  border-radius: 50%;
-  text-align: center;
-  line-height: 40px;
-  margin-right: 10px;
-  transition: background-color 0.3s;
+.footer-marca small {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #9fc2b5;
 }
 
-.social-icon:hover {
-  background-color: #0daa75;
-  color: white;
+h5 {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
+}
+
+.footer-links li,
+.footer-contacto li {
+  margin-bottom: 0.55rem;
+}
+
+.footer-links a {
+  text-decoration: none;
+}
+
+.footer-contacto i {
+  color: var(--primary);
+  margin-right: 8px;
+}
+
+.footer-hr {
+  border-color: rgba(255, 255, 255, 0.12);
+  margin: 2rem 0 1.25rem;
 }

@@ -1,45 +1,30 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { AuthService } from '../../servicios/auth.service';
-import { CommonModule } from '@angular/common';
 import { RecaptchaModule, RECAPTCHA_SETTINGS, RecaptchaSettings } from 'ng-recaptcha';
-import { environment } from '../../../environments/environment';
-import { IdiomaService } from '../../servicios/idioma.service';
-import { ES } from '../../i18n/es';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../servicios/auth.service';
+import { IdiomaService } from '../../servicios/idioma.service';
+import { environment } from '../../../environments/environment';
+import { ES } from '../../i18n/es';
 
+/** Formulario de contacto (POST /api/auth/contacto, mismas reglas que ContactoDto). */
 @Component({
   selector: 'app-contactenos',
   standalone: true,
   templateUrl: './contactenos.component.html',
   styleUrls: ['./contactenos.component.css'],
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterLink,
-    RecaptchaModule
-  ],
-  providers: [
-    {
-      provide: RECAPTCHA_SETTINGS,
-      useValue: {
-        siteKey: environment.recaptcha.siteKey,
-      } as RecaptchaSettings,
-    },
-  ],
+  imports: [ReactiveFormsModule, RecaptchaModule],
+  providers: [{ provide: RECAPTCHA_SETTINGS, useValue: { siteKey: environment.recaptcha.siteKey } as RecaptchaSettings }],
 })
 export class ContactenosComponent implements OnInit, OnDestroy {
-
   contactoForm: FormGroup;
   captchaToken: string | null = null;
-
-  // Lógica de Traducción
+  captchaActivo = true;
+  enviando = false;
+  enviado = false;
+  intento = false;
   t: typeof ES;
   private sub!: Subscription;
-
-  // Lógica de reCAPTCHA y Modo Oscuro
-  captchaActivo = true;
   private observer: MutationObserver | null = null;
 
   constructor(
@@ -49,42 +34,31 @@ export class ContactenosComponent implements OnInit, OnDestroy {
     public idiomaService: IdiomaService
   ) {
     this.t = idiomaService.t;
+    const sesion = this.authService.getClaims();
     this.contactoForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(3)]],
-      telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{7,15}$/)]],
-      correo: ['', [Validators.required, Validators.email]],
-      asunto: ['', Validators.required],
-      mensaje: ['', [Validators.required, Validators.maxLength(500)]]
+      nombre: [sesion ? `${sesion.nombre} ${sesion.apellido}` : '', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      telefono: [sesion?.telefono?.replace(/\D/g, '').slice(-10) ?? '', [Validators.required, Validators.pattern(/^[0-9]{7,15}$/)]],
+      correo: [sesion?.sub ?? '', [Validators.required, Validators.email]],
+      asunto: ['', [Validators.required, Validators.maxLength(150)]],
+      mensaje: ['', [Validators.required, Validators.maxLength(500)]],
     });
   }
 
   ngOnInit(): void {
-    // 1. Suscripción a traducciones (Rama accesibilidad)
-    this.sub = this.idiomaService.traducciones$.subscribe(t => {
-      this.t = t;
-    });
-
-    // 2. Observador para Modo Oscuro (Rama HEAD)
-    this.observer = new MutationObserver(() => {
-      this.recargarCaptcha();
-    });
-
-    this.observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ['class']
-    });
+    this.sub = this.idiomaService.traducciones$.subscribe(t => (this.t = t));
+    // El captcha cambia de tema cuando se activa/desactiva el modo oscuro
+    this.observer = new MutationObserver(() => this.recargarCaptcha());
+    this.observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
   }
 
   ngOnDestroy(): void {
-    // Limpieza de suscripciones y observadores para evitar fugas de memoria
     this.sub?.unsubscribe();
-    if (this.observer) {
-      this.observer.disconnect();
-    }
+    this.observer?.disconnect();
   }
 
-  recargarCaptcha() {
+  recargarCaptcha(): void {
     this.captchaActivo = false;
+    this.captchaToken = null;
     this.cdr.detectChanges();
     this.captchaActivo = true;
     this.cdr.detectChanges();
@@ -94,39 +68,40 @@ export class ContactenosComponent implements OnInit, OnDestroy {
     return document.body.classList.contains('dark-mode') ? 'dark' : 'light';
   }
 
-  resolved(token: string | null) {
+  get largoMensaje(): number {
+    return (this.contactoForm.get('mensaje')?.value ?? '').length;
+  }
+
+  invalido(campo: string): boolean {
+    const c = this.contactoForm.get(campo);
+    return !!c && c.invalid && (c.touched || this.intento);
+  }
+
+  resolved(token: string | null): void {
     this.captchaToken = token;
   }
 
-  onSubmit() {
+  onSubmit(): void {
+    this.intento = true;
     if (this.contactoForm.invalid) {
       this.contactoForm.markAllAsTouched();
       return;
     }
-
-    if (!this.captchaToken) {
-      alert('Por favor, confirma que no eres un robot.');
-      return;
-    }
-
-    const datosEnvio = {
-      ...this.contactoForm.value,
-      recaptchaToken: this.captchaToken
-    };
-
-    this.authService.enviarContacto(datosEnvio)
-      .subscribe({
-        next: () => {
-          this.contactoForm.reset();
-          this.captchaToken = null;
-          this.recargarCaptcha();
-          alert('Mensaje enviado con éxito');
-        },
-        error: (err) => {
-          console.error('Error al enviar:', err);
-          this.captchaToken = null;
-          this.recargarCaptcha();
-        }
-      });
+    if (!this.captchaToken) return;
+    this.enviando = true;
+    this.authService.enviarContacto({ ...this.contactoForm.value, recaptchaToken: this.captchaToken }).subscribe({
+      next: () => {
+        this.enviando = false;
+        this.enviado = true;
+        this.intento = false;
+        this.contactoForm.patchValue({ asunto: '', mensaje: '' });
+        this.contactoForm.markAsUntouched();
+        this.recargarCaptcha();
+      },
+      error: () => {
+        this.enviando = false;
+        this.recargarCaptcha();
+      },
+    });
   }
 }

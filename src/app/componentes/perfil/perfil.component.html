@@ -1,99 +1,78 @@
-<div class="container py-4">
+<div class="container py-4 aparecer">
   @if (cargando) {
-    <div class="text-center py-5"><div class="spinner-border text-success"></div></div>
+    <div class="perfil-cabecera esqueleto"></div>
   } @else if (error || !perfil) {
     <div class="alert alert-danger">{{ error }}</div>
   } @else {
     @if (!activo) {
       <div class="alert alert-warning d-flex justify-content-between align-items-center flex-wrap gap-2">
         <span><i class="bi bi-exclamation-triangle me-1"></i> Tu cuenta está desactivada. Reactívala para volver a usar la plataforma.</span>
-        <a class="btn btn-sm btn-warning rounded-pill" routerLink="/reactivar">Reactivar cuenta</a>
+        <a class="btn btn-sm btn-warning" routerLink="/reactivar">Reactivar cuenta</a>
       </div>
     }
 
-    <div class="row g-4">
-      <div class="col-lg-4">
-        <div class="card p-4 text-center">
-          <div class="foto-wrapper mx-auto">
-            @if (perfil.imagenPerfil) {
-              <img [src]="perfil.imagenPerfil" alt="Foto de perfil" class="foto">
-            } @else {
-              <div class="foto iniciales">{{ iniciales }}</div>
-            }
-            @if (activo) {
-              <label class="btn-foto" [class.disabled]="subiendoImagen" title="Cambiar foto">
-                @if (subiendoImagen) { <span class="spinner-border spinner-border-sm"></span> } @else { <i class="bi bi-camera"></i> }
-                <input type="file" accept="image/*" hidden (change)="onImagen($event)" [disabled]="subiendoImagen">
-              </label>
-            }
-          </div>
-          <h3 class="mt-3 mb-0">{{ perfil.nombre }} {{ perfil.apellido }}</h3>
-          <p class="text-muted mb-2">{{ perfil.email }}</p>
-          <div>
-            <span class="badge rounded-pill text-bg-success me-1">{{ perfil.rol }}</span>
-            <span class="badge rounded-pill" [class.text-bg-light]="activo" [class.text-bg-warning]="!activo">{{ perfil.estado }}</span>
-          </div>
-          @if (activo) {
-            <div class="d-grid gap-2 mt-3">
-              <a class="btn btn-outline-primary" [routerLink]="['/tutores', perfil.id]">Ver mi perfil público</a>
-              <a class="btn btn-primary" routerLink="/ofrecer-asesoria">Ofrecer asesoría</a>
-            </div>
-          }
-        </div>
-
-        @if (activo) {
-          <div class="card p-4 mt-4">
-            <h6 class="mb-3">Mis asesorías</h6>
-            <div class="resumen">
-              <div><span>{{ resumen.enCurso }}</span>En curso</div>
-              <div><span>{{ resumen.finalizadas }}</span>Finalizadas</div>
-              <div><span>{{ resumen.comoEstudiante }}</span>Como estudiante</div>
-              <div><span>{{ resumen.comoTutor }}</span>Como tutor</div>
-            </div>
-            <a class="btn btn-primary w-100 mt-3" routerLink="/asesorias">Ir a mis asesorías</a>
-          </div>
-        }
-      </div>
-
-      <div class="card p-4 mt-4">
-        <h6 class="mb-2">Mi carrera</h6>
-        @if (perfil?.programa) {
-          <p class="mb-2">{{ perfil?.programa }}</p>
+    <!-- Cabecera -->
+    <section class="perfil-cabecera">
+      <div class="foto-wrapper">
+        @if (perfil.imagenPerfil) {
+          <img [src]="perfil.imagenPerfil" alt="Foto de perfil" class="foto">
         } @else {
-          <p class="text-muted small mb-2">Aún no tienes una carrera registrada. Selecciónala para poder ofrecer asesorías.</p>
+          <div class="foto avatar-iniciales">{{ iniciales }}</div>
         }
-        <div class="d-flex gap-2">
-          <select class="form-select" [(ngModel)]="programaSel">
-            <option [ngValue]="null" disabled>Selecciona una carrera</option>
-            @for (p of programas; track p.id) {
-              <option [ngValue]="p.id">{{ p.nombre }}</option>
-            }
-          </select>
-          <button class="btn btn-primary" (click)="guardarPrograma()" [disabled]="!programaSel || guardandoPrograma">
-            Guardar
-          </button>
+        @if (activo) {
+          <label class="btn-foto" [class.disabled]="subiendoImagen" title="Cambiar foto" aria-label="Cambiar foto de perfil">
+            @if (subiendoImagen) { <span class="spinner-border spinner-border-sm"></span> } @else { <i class="bi bi-camera-fill"></i> }
+            <input type="file" accept="image/*" hidden (change)="onImagen($event)" [disabled]="subiendoImagen">
+          </label>
+        }
+      </div>
+      <div class="flex-grow-1">
+        <h1 class="mb-1">{{ perfil.nombre }} {{ perfil.apellido }}</h1>
+        <p class="mb-2 correo"><i class="bi bi-envelope me-1"></i>{{ perfil.email }}</p>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="chip"><i class="bi bi-mortarboard"></i>{{ perfil.programa || 'Sin carrera registrada' }}</span>
+          <span class="chip chip-gris">{{ perfil.rol === 'MODERADOR' ? 'Moderador' : 'Estudiante' }}</span>
+          @if (!activo) { <span class="chip chip-gris">Cuenta inactiva</span> }
         </div>
       </div>
+      @if (activo) {
+        <div class="d-flex flex-column gap-2 acciones-cabecera">
+          <a class="btn btn-primary" routerLink="/ofrecer-asesoria"><i class="bi bi-mortarboard me-1"></i>Materias que enseño</a>
+          <a class="btn btn-light" [routerLink]="['/tutores', perfil.id]"><i class="bi bi-eye me-1"></i>Ver perfil público</a>
+        </div>
+      }
+    </section>
 
-      <div class="col-lg-8">
-        <div class="card p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-            <h5 class="mb-0">Información personal</h5>
+    @if (activo) {
+      <div class="row g-3 my-1">
+        <div class="col-6 col-md-3"><a class="stat" routerLink="/asesorias"><span>{{ resumen.enCurso }}</span>En curso</a></div>
+        <div class="col-6 col-md-3"><a class="stat" routerLink="/asesorias"><span>{{ resumen.finalizadas }}</span>Finalizadas</a></div>
+        <div class="col-6 col-md-3"><a class="stat" routerLink="/asesorias"><span>{{ resumen.comoEstudiante }}</span>Como estudiante</a></div>
+        <div class="col-6 col-md-3"><a class="stat" routerLink="/asesorias"><span>{{ resumen.comoTutor }}</span>Como tutor</a></div>
+      </div>
+    }
+
+    <div class="row g-4 mt-1">
+      <div class="col-lg-7">
+        <!-- Datos personales -->
+        <div class="tarjeta">
+          <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
+            <h2 class="tarjeta-titulo mb-0"><i class="bi bi-person-vcard"></i>Información personal</h2>
             @if (activo && !editando) {
-              <button class="btn btn-outline-primary btn-sm" (click)="editar()"><i class="bi bi-pencil me-1"></i>Editar</button>
+              <button class="btn btn-light btn-sm" (click)="editar()"><i class="bi bi-pencil me-1"></i>Editar</button>
             }
           </div>
 
           @if (!editando) {
-            <dl class="row mb-0 datos">
-              <dt class="col-sm-4">Nombre</dt><dd class="col-sm-8">{{ perfil.nombre }}</dd>
-              <dt class="col-sm-4">Apellido</dt><dd class="col-sm-8">{{ perfil.apellido }}</dd>
-              <dt class="col-sm-4">Correo</dt><dd class="col-sm-8">{{ perfil.email }}</dd>
-              <dt class="col-sm-4">Teléfono</dt><dd class="col-sm-8">{{ perfil.telefono }}</dd>
-              <dt class="col-sm-4">Documento</dt><dd class="col-sm-8">{{ perfil.documentoIdentidad }}</dd>
+            <dl class="datos mb-0">
+              <div><dt>Nombre</dt><dd>{{ perfil.nombre }}</dd></div>
+              <div><dt>Apellido</dt><dd>{{ perfil.apellido }}</dd></div>
+              <div><dt>Teléfono</dt><dd>{{ perfil.telefono }}</dd></div>
+              <div><dt>Documento</dt><dd>{{ perfil.documentoIdentidad }}</dd></div>
+              <div class="completo"><dt>Correo</dt><dd>{{ perfil.email }}</dd></div>
             </dl>
           } @else {
-            <form [formGroup]="form" (ngSubmit)="guardar()">
+            <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
               <div class="row g-3">
                 <div class="col-sm-6">
                   <label class="form-label" for="nombre">Nombre</label>
@@ -111,34 +90,70 @@
                   <div class="invalid-feedback">Entre 7 y 15 dígitos.</div>
                 </div>
                 <div class="col-sm-6">
-                  <label class="form-label">Correo y documento</label>
-                  <input class="form-control" [value]="perfil.email + ' · ' + perfil.documentoIdentidad" disabled>
-                  <div class="form-text">No se pueden modificar.</div>
+                  <label class="form-label">Documento</label>
+                  <input class="form-control" [value]="perfil.documentoIdentidad" disabled>
+                  <div class="form-text">El correo y el documento no se pueden modificar.</div>
                 </div>
               </div>
               <div class="d-flex justify-content-end gap-2 mt-3">
-                <button type="button" class="btn btn-outline-secondary rounded-pill" (click)="editando = false" [disabled]="guardando">Cancelar</button>
+                <button type="button" class="btn btn-outline-secondary" (click)="editando = false" [disabled]="guardando">Cancelar</button>
                 <button type="submit" class="btn btn-primary" [disabled]="guardando">
-                  @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> } Guardar
+                  @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> } Guardar cambios
                 </button>
               </div>
             </form>
           }
         </div>
 
-        <div class="card p-4 mt-4">
-          <h5>Seguridad</h5>
-          <p class="text-muted small">¿Olvidaste tu contraseña? Puedes cambiarla con un código enviado a tu correo.</p>
-          <a class="btn btn-outline-primary btn-sm align-self-start" routerLink="/recuperar">Cambiar contraseña</a>
+        <!-- Carrera -->
+        <div class="tarjeta mt-4">
+          <div class="d-flex justify-content-between align-items-center mb-2 gap-2">
+            <h2 class="tarjeta-titulo mb-0"><i class="bi bi-mortarboard"></i>Mi carrera</h2>
+            @if (activo && !editandoCarrera && perfil.programa) {
+              <button class="btn btn-light btn-sm" (click)="editarCarrera()"><i class="bi bi-pencil me-1"></i>Cambiar</button>
+            }
+          </div>
+          @if (!editandoCarrera && perfil.programa) {
+            <p class="mb-0 fs-5 fw-semibold">{{ perfil.programa }}</p>
+            <p class="small text-muted mb-0">Solo puedes ofrecer asesorías de las materias de tu carrera.</p>
+          } @else if (activo) {
+            @if (!perfil.programa) {
+              <p class="small text-muted">Aún no tienes una carrera registrada. Selecciónala para poder ofrecer asesorías.</p>
+            }
+            <div class="d-flex gap-2 flex-wrap flex-sm-nowrap">
+              <select class="form-select" [(ngModel)]="programaSel" aria-label="Carrera">
+                <option [ngValue]="null" disabled>Selecciona una carrera</option>
+                @for (p of programas; track p.id) {
+                  <option [ngValue]="p.id">{{ p.nombre }}</option>
+                }
+              </select>
+              @if (editandoCarrera) {
+                <button class="btn btn-outline-secondary" (click)="editandoCarrera = false" [disabled]="guardandoPrograma">Cancelar</button>
+              }
+              <button class="btn btn-primary" (click)="guardarPrograma()" [disabled]="!programaSel || guardandoPrograma">
+                @if (guardandoPrograma) { <span class="spinner-border spinner-border-sm me-1"></span> } Guardar
+              </button>
+            </div>
+          } @else {
+            <p class="text-muted mb-0">Sin carrera registrada.</p>
+          }
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="tarjeta">
+          <h2 class="tarjeta-titulo"><i class="bi bi-shield-lock"></i>Seguridad</h2>
+          <p class="text-muted small">Para cambiar tu contraseña te enviaremos un código de verificación a tu correo.</p>
+          <a class="btn btn-outline-primary btn-sm" routerLink="/recuperar">Cambiar contraseña</a>
         </div>
 
         @if (activo) {
-          <div class="card p-4 mt-4 zona-peligro">
-            <h5 class="text-danger">Desactivar cuenta</h5>
-            <p class="text-muted small mb-2">
+          <div class="tarjeta mt-4 zona-peligro">
+            <h2 class="tarjeta-titulo text-danger"><i class="bi bi-exclamation-octagon text-danger"></i>Desactivar cuenta</h2>
+            <p class="text-muted small">
               Tus asesorías abiertas se rechazarán o cancelarán y se notificará a la otra parte. Podrás reactivarla más adelante.
             </p>
-            <button class="btn btn-outline-danger rounded-pill btn-sm align-self-start" (click)="desvincular()" [disabled]="desvinculando">
+            <button class="btn btn-outline-danger btn-sm" (click)="desvincular()" [disabled]="desvinculando">
               @if (desvinculando) { <span class="spinner-border spinner-border-sm me-1"></span> } Desactivar mi cuenta
             </button>
           </div>
