@@ -1,0 +1,66 @@
+<div class="container py-4" style="max-width: 720px;">
+  <a routerLink="/tutores" class="btn btn-outline-secondary rounded-pill mb-3">
+    <i class="bi bi-arrow-left"></i> Volver a tutores
+  </a>
+
+  <h2 class="section-title">Solicitar asesoría</h2>
+  <p class="text-muted" *ngIf="tutorNombre">Con {{ tutorNombre }}</p>
+
+  @if (cargando) {
+    <div class="text-center py-5"><div class="spinner-border text-success"></div></div>
+  } @else if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  } @else if (materias.length === 0) {
+    <div class="alert alert-warning">Este tutor no tiene materias disponibles por ahora.</div>
+  } @else {
+    <form (ngSubmit)="enviar()" class="card card-body">
+      <div class="mb-3">
+        <label class="form-label" for="materia">Materia</label>
+        <select id="materia" class="form-select" name="materia" [(ngModel)]="form.materiaId" (ngModelChange)="onMateriaChange()">
+          <option [ngValue]="null" disabled>Elige una materia</option>
+          @for (m of materias; track m.id) {
+            <option [ngValue]="m.id">{{ m.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      @if (form.materiaId && temasDisponibles.length) {
+        <div class="mb-3">
+          <label class="form-label">Temas <span class="text-muted small">(opcional)</span></label>
+          <div class="d-flex flex-wrap gap-2">
+            @for (t of temasDisponibles; track t.id) {
+              <label class="chip-tema">
+                <input type="checkbox" [checked]="form.temasIds.includes(t.id)"
+                       (change)="toggleTema(t.id, $any($event.target).checked)">
+                {{ t.nombre }}
+              </label>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="row g-3 mb-3">
+        <div class="col-sm-6">
+          <label class="form-label" for="inicio">Inicio</label>
+          <input id="inicio" type="datetime-local" class="form-control" name="inicio" [min]="minFecha" [(ngModel)]="form.inicio" required>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label" for="cierre">Cierre</label>
+          <input id="cierre" type="datetime-local" class="form-control" name="cierre" [min]="form.inicio || minFecha" [(ngModel)]="form.cierre" required>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="precio">Precio propuesto (COP)</label>
+        <input id="precio" type="number" min="1" step="1000" class="form-control" name="precio" [(ngModel)]="form.precio" required>
+      </div>
+
+      <div class="d-flex justify-content-end gap-2">
+        <a routerLink="/tutores" class="btn btn-outline-secondary rounded-pill">Cancelar</a>
+        <button type="submit" class="btn btn-primary" [disabled]="enviando">
+          {{ enviando ? 'Enviando...' : 'Enviar solicitud' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

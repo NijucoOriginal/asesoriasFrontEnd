@@ -82,6 +82,17 @@
     </div>
 
     <div class="mb-3">
+      <label class="form-label" for="programa">Carrera que cursas</label>
+      <select id="programa" class="form-select" formControlName="programaId">
+        <option [ngValue]="null" disabled>Selecciona tu carrera</option>
+        <option *ngFor="let p of programas" [ngValue]="p.id">{{ p.nombre }}</option>
+      </select>
+      <div *ngIf="registroForm.get('programaId')?.invalid && registroForm.get('programaId')?.touched" class="text-danger">
+        Debes seleccionar tu carrera.
+      </div>
+    </div>
+
+    <div class="mb-3">
       <label for="password" class="form-label">{{ t.registro.contrasena }}</label>
       <div class="password-toggle">
         <input [type]="verContra ? 'text' : 'password'" class="form-control" id="password" formControlName="contrasena" [placeholder]="t.registro.placeholderContrasena">

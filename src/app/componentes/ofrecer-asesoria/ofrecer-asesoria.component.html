@@ -1,0 +1,53 @@
+<div class="container py-4" style="max-width: 820px;">
+  <a routerLink="/perfil" class="btn btn-outline-secondary rounded-pill mb-3">
+    <i class="bi bi-arrow-left me-1"></i> Volver a mi perfil
+  </a>
+
+  <h2 class="section-title">Ofrecer asesoría</h2>
+
+  @if (cargando) {
+    <div class="text-center py-5"><div class="spinner-border text-success"></div></div>
+  } @else if (error) {
+    <div class="alert alert-danger">{{ error }}</div>
+  } @else if (sinCarrera) {
+    <div class="alert alert-warning">
+      Primero registra tu carrera en <a routerLink="/perfil">tu perfil</a>. Después podrás elegir las materias que enseñas.
+    </div>
+  } @else {
+    <p class="text-muted">
+      Elige las materias de tu carrera que puedes enseñar. No podrás quitar una materia mientras tengas asesorías abiertas con ella.
+    </p>
+
+    <div class="card card-body mb-3 card-carrera">
+      <h5 class="mb-3">De tu carrera: {{ programaNombre }}</h5>
+      @if (materiasDeMiCarrera.length === 0) {
+        <p class="text-muted mb-0">Tu carrera aún no tiene materias cargadas.</p>
+      } @else {
+        <div class="d-flex flex-wrap gap-2">
+          @for (m of materiasDeMiCarrera; track m.id) {
+            <label class="chip-materia" [class.activo]="estaMarcada(m.id)">
+              <input type="checkbox" [checked]="estaMarcada(m.id)" (change)="alternar(m.id, $any($event.target).checked)">
+              {{ m.nombre }}
+            </label>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+      <span class="text-muted small">
+        {{ seleccionadas.size }} materia(s) seleccionada(s)
+        @if (hayCambios) { · <span class="text-warning">Cambios sin guardar</span> }
+      </span>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary rounded-pill" (click)="descartar()" [disabled]="!hayCambios || guardando">
+          Descartar
+        </button>
+        <button class="btn btn-primary" (click)="guardar()" [disabled]="!hayCambios || guardando">
+          @if (guardando) { <span class="spinner-border spinner-border-sm me-1"></span> }
+          Guardar materias
+        </button>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,58 @@
+.section-title {
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.25rem;
+}
+
+.card {
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+}
+
+.chip-materia {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--primary-light);
+  border-radius: 30px;
+  background: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chip-materia:hover {
+  border-color: var(--primary);
+}
+
+.chip-materia input {
+  accent-color: var(--primary);
+  margin: 0;
+}
+
+.chip-materia.activo {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: #0b7a57;
+  font-weight: 600;
+}
+
+body.dark-mode .card {
+  background: #16213e;
+  color: #e0e0e0;
+  border: 1px solid #0f3460;
+}
+
+body.dark-mode .chip-materia {
+  background: #1a1a2e;
+  border-color: #0f3460;
+  color: #e0e0e0;
+}
+
+body.dark-mode .chip-materia.activo {
+  background: #0f3460;
+  border-color: #10bb82;
+  color: #10bb82;
+}

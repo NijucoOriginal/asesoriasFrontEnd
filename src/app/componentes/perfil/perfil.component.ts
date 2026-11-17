@@ -1,20 +1,21 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { UsersService } from '../../servicios/users.service';
 import { AuthService } from '../../servicios/auth.service';
 import { AsesoriasService } from '../../servicios/asesorias.service';
 import { ChatService } from '../../servicios/chat.service';
+import { ProgramasService } from '../../servicios/programas.service';
 import { NotificacionService } from '../../servicios/notificacion.service';
 import { mensajeError } from '../../servicios/api-error';
-import { AsesoriaResponse, PerfilResponse } from '../../dto/modelos';
+import { AsesoriaResponse, PerfilResponse, ProgramaCatalogo } from '../../dto/modelos';
 
-const MAX_IMAGEN_MB = 20; // spring.servlet.multipart.max-file-size
+const MAX_IMAGEN_MB = 20;
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, FormsModule, RouterLink],
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.css'],
 })
@@ -29,6 +30,11 @@ export class PerfilComponent implements OnInit {
   desvinculando = false;
   form: FormGroup;
 
+  // Carrera
+  programas: ProgramaCatalogo[] = [];
+  programaSel: number | null = null;
+  guardandoPrograma = false;
+
   resumen = { comoEstudiante: 0, comoTutor: 0, finalizadas: 0, enCurso: 0 };
 
   constructor(
@@ -37,6 +43,7 @@ export class PerfilComponent implements OnInit {
     private auth: AuthService,
     private asesorias: AsesoriasService,
     private chat: ChatService,
+    private programasService: ProgramasService,
     private notificaciones: NotificacionService,
     private router: Router
   ) {
@@ -49,10 +56,15 @@ export class PerfilComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargar();
+    this.programasService.catalogo().subscribe({ next: p => (this.programas = p) });
   }
 
   get activo(): boolean {
     return this.perfil?.estado === 'ACTIVO';
+  }
+
+  get sinCarrera(): boolean {
+    return !!this.perfil && this.perfil.programaId == null;
   }
 
   get iniciales(): string {
@@ -115,6 +127,23 @@ export class PerfilComponent implements OnInit {
     });
   }
 
+  guardarPrograma(): void {
+    if (!this.programaSel || this.guardandoPrograma) return;
+    this.guardandoPrograma = true;
+    this.programasService.cambiarPrograma(this.programaSel).subscribe({
+      next: p => {
+        this.perfil = p;
+        this.programaSel = null;
+        this.guardandoPrograma = false;
+        this.notificaciones.exito('Carrera guardada.');
+      },
+      error: err => {
+        this.guardandoPrograma = false;
+        this.notificaciones.error(mensajeError(err, 'No se pudo cambiar la carrera.'));
+      },
+    });
+  }
+
   onImagen(event: Event): void {
     const input = event.target as HTMLInputElement;
     const archivo = input.files?.[0];
@@ -146,7 +175,7 @@ export class PerfilComponent implements OnInit {
     if (!this.perfil) return;
     const ok = confirm(
       'Al desactivar tu cuenta se rechazarán o cancelarán tus asesorías abiertas y no podrás usar la plataforma ' +
-        'hasta reactivarla. ¿Deseas continuar?'
+      'hasta reactivarla. ¿Deseas continuar?'
     );
     if (!ok) return;
     this.desvinculando = true;

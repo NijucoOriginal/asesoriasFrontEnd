@@ -34,7 +34,10 @@
             <span class="badge rounded-pill" [class.text-bg-light]="activo" [class.text-bg-warning]="!activo">{{ perfil.estado }}</span>
           </div>
           @if (activo) {
-            <a class="btn btn-outline-primary mt-3" [routerLink]="['/tutores', perfil.id]">Ver mi perfil de tutor</a>
+            <div class="d-grid gap-2 mt-3">
+              <a class="btn btn-outline-primary" [routerLink]="['/tutores', perfil.id]">Ver mi perfil público</a>
+              <a class="btn btn-primary" routerLink="/ofrecer-asesoria">Ofrecer asesoría</a>
+            </div>
           }
         </div>
 
@@ -50,6 +53,26 @@
             <a class="btn btn-primary w-100 mt-3" routerLink="/asesorias">Ir a mis asesorías</a>
           </div>
         }
+      </div>
+
+      <div class="card p-4 mt-4">
+        <h6 class="mb-2">Mi carrera</h6>
+        @if (perfil?.programa) {
+          <p class="mb-2">{{ perfil?.programa }}</p>
+        } @else {
+          <p class="text-muted small mb-2">Aún no tienes una carrera registrada. Selecciónala para poder ofrecer asesorías.</p>
+        }
+        <div class="d-flex gap-2">
+          <select class="form-select" [(ngModel)]="programaSel">
+            <option [ngValue]="null" disabled>Selecciona una carrera</option>
+            @for (p of programas; track p.id) {
+              <option [ngValue]="p.id">{{ p.nombre }}</option>
+            }
+          </select>
+          <button class="btn btn-primary" (click)="guardarPrograma()" [disabled]="!programaSel || guardandoPrograma">
+            Guardar
+          </button>
+        </div>
       </div>
 
       <div class="col-lg-8">

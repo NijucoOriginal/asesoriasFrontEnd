@@ -14,7 +14,9 @@ import { TutoresComponent } from './componentes/tutores/tutores.component';
 import { TutorDetalleComponent } from './componentes/tutor-detalle/tutor-detalle.component';
 import { AsesoriasComponent } from './componentes/asesorias/asesorias.component';
 import { ReactivarComponent } from './componentes/reactivar/reactivar.component';
+import { NuevaAsesoriaComponent } from './componentes/nueva-asesoria/nueva-asesoria.component';
 import { authGuard, cuentaActivaGuard, invitadoGuard } from './guards/auth.guard';
+import {OfrecerAsesoriaComponent} from './componentes/ofrecer-asesoria/ofrecer-asesoria.component';
 
 export const routes: Routes = [
   // Públicas
@@ -36,11 +38,16 @@ export const routes: Routes = [
   { path: 'perfil', component: PerfilComponent, canActivate: [authGuard], title: 'Mi perfil · Asesorías Edén' },
   { path: 'reactivar', component: ReactivarComponent, canActivate: [authGuard], title: 'Reactivar cuenta · Asesorías Edén' },
   { path: 'asesorias', component: AsesoriasComponent, canActivate: [cuentaActivaGuard], title: 'Mis asesorías · Asesorías Edén' },
+  { path: 'asesorias/nueva/:tutorId', component: NuevaAsesoriaComponent, canActivate: [cuentaActivaGuard], title: 'Nueva asesoría · Asesorías Edén' },
 
   // Compatibilidad con rutas antiguas
   { path: 'inicio', redirectTo: '', pathMatch: 'full' },
   { path: 'catalogo', redirectTo: 'tutores', pathMatch: 'full' },
 
   { path: 'unauthorized', component: UnauthorizedComponent },
+
+  { path: 'ofrecer-asesoria', component: OfrecerAsesoriaComponent, canActivate: [cuentaActivaGuard], title: 'Ofrecer asesoría · Asesorías Edén' },
+
+  // Siempre al final
   { path: '**', redirectTo: '' },
 ];

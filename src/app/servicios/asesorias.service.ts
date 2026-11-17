@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 import {
   AsesoriaResponse,
   CrearAsesoriaRequest,
+  MateriaTutor,
   ProponerAsesoriaRequest,
   ResenaRequest,
   ResenaResponse,
@@ -20,6 +21,11 @@ export class AsesoriasService {
   /** GET /api/asesorias — asesorías donde participo como tutor o como estudiante. */
   listar(): Observable<AsesoriaResponse[]> {
     return this.http.get<AsesoriaResponse[]>(this.url);
+  }
+
+  /** GET /api/tutores/{id}/materias — materias con id y temas que dicta el tutor. */
+  materiasDeTutor(tutorId: number): Observable<MateriaTutor[]> {
+    return this.http.get<MateriaTutor[]>(`${environment.backendUrl}/api/tutores/${tutorId}/materias`);
   }
 
   /** POST /api/asesorias — el estudiante solicita una asesoría a un tutor. */

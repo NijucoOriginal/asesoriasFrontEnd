@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
 import { TutoresService } from '../../servicios/tutores.service';
 import { AsesoriasService } from '../../servicios/asesorias.service';
 import { AuthService } from '../../servicios/auth.service';
@@ -39,7 +38,7 @@ export class TutorDetalleComponent implements OnInit {
     cierre: '',
     precio: null as number | null,
   };
-  minFecha = ahoraInputLocal(60);
+  minFecha = ahoraInputLocal(30);
 
   constructor(
     private route: ActivatedRoute,
@@ -57,17 +56,24 @@ export class TutorDetalleComponent implements OnInit {
       this.router.navigate(['/tutores']);
       return;
     }
+
     this.tutores.obtener(id).subscribe({
       next: t => {
         this.tutor = t;
         this.cargando = false;
       },
       error: err => {
-        this.error = err.status === 404 ? 'Este tutor no existe o no está disponible.' : mensajeError(err);
+        this.error = err.status === 404
+          ? 'Este tutor no existe o no está disponible.'
+          : mensajeError(err, 'No se pudo cargar el tutor.');
         this.cargando = false;
       },
     });
-    this.tutores.resenas(id).subscribe({ next: r => (this.resenas = r), error: () => (this.resenas = []) });
+
+    this.tutores.resenas(id).subscribe({
+      next: r => (this.resenas = r),
+      error: () => (this.resenas = []),
+    });
   }
 
   get esYo(): boolean {
@@ -103,30 +109,23 @@ export class TutorDetalleComponent implements OnInit {
   }
 
   abrirSolicitud(): void {
+    console.log('abrirSolicitud', { tutor: this.tutor, auth: this.auth.isAuthenticated(), inactivo: this.auth.estaInactivo() });
     if (!this.tutor || !this.requiereSesion()) return;
     this.modalAbierto = true;
-    this.minFecha = ahoraInputLocal(60);
+    this.minFecha = ahoraInputLocal(30);
     if (this.materias.length) return;
+
     this.cargandoMaterias = true;
     this.errorMaterias = null;
-    this.tutores.materias(this.tutor.id).subscribe({
+    this.asesorias.materiasDeTutor(this.tutor.id).subscribe({
       next: m => {
         this.materias = m;
         if (m.length === 1) this.form.materiaId = m[0].id;
         this.cargandoMaterias = false;
       },
-      error: (err: HttpErrorResponse) => {
+      error: err => {
         this.cargandoMaterias = false;
-        // Si la ruta no existe, Spring lanza NoResourceFoundException y el GlobalExceptionHandler
-        // del backend la devuelve como 500 "No static resource ...".
-        const noExiste =
-          err.status === 404 || err.status === 405 ||
-          (err.status === 500 && /no static resource|no handler/i.test(mensajeError(err, '')));
-        this.errorMaterias =
-          noExiste
-            ?'El backend todavía no expone las materias del tutor (GET /api/tutores/{id}/materias), ' +
-              'que se necesitan para enviar la solicitud. Pide al equipo de backend que agregue ese endpoint.'
-            : mensajeError(err, 'No se pudieron cargar las materias del tutor.');
+        this.errorMaterias = mensajeError(err, 'No se pudieron cargar las materias del tutor.');
       },
     });
   }
@@ -141,7 +140,9 @@ export class TutorDetalleComponent implements OnInit {
   }
 
   toggleTema(id: number, marcado: boolean): void {
-    this.form.temasIds = marcado ? [...this.form.temasIds, id] : this.form.temasIds.filter(t => t !== id);
+    this.form.temasIds = marcado
+      ? [...this.form.temasIds, id]
+      : this.form.temasIds.filter(t => t !== id);
   }
 
   get errorFormulario(): string | null {

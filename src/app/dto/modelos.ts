@@ -34,16 +34,6 @@ export interface TokenClaims {
   iat: number;
 }
 
-/** CrearUsuarioDto */
-export interface CrearUsuarioRequest {
-  nombre: string;
-  apellido: string;
-  documentoIdentidad: string;
-  telefono: string;
-  email: string;
-  contrasena: string;
-  recaptchaToken: string;
-}
 
 /** UserResponse */
 export interface UserResponse {
@@ -56,18 +46,6 @@ export interface UserResponse {
   telefono: string;
 }
 
-/** PerfilResponse (GET /api/usuarios/me) */
-export interface PerfilResponse {
-  id: number;
-  email: string;
-  rol: Rol;
-  estado: EstadoUsuario;
-  nombre: string;
-  apellido: string;
-  documentoIdentidad: string;
-  telefono: string;
-  imagenPerfil: string | null;
-}
 
 /** TutorResponse (GET /api/tutores) */
 export interface TutorResponse {
@@ -152,6 +130,14 @@ export interface ResenaResponse {
   descripcion: string | null;
 }
 
+export interface MateriaCatalogo {
+  id: number;
+  nombre: string;
+  programaId: number | null;
+  programa: string | null;
+  temas: { id: number; nombre: string }[];
+}
+
 export const ESTADO_ASESORIA_LABEL: Record<EstadoAsesoria, string> = {
   PENDIENTE: 'Pendiente',
   CONTRAPROPUESTA: 'Contrapropuesta',
@@ -160,4 +146,45 @@ export const ESTADO_ASESORIA_LABEL: Record<EstadoAsesoria, string> = {
   CANCELADA: 'Cancelada',
   EXPIRADA: 'Expirada',
   FINALIZADA: 'Finalizada',
+}
+
+/** PerfilResponse (GET /api/usuarios/me) */
+export interface PerfilResponse {
+  id: number;
+  email: string;
+  rol: Rol;
+  estado: EstadoUsuario;
+  nombre: string;
+  apellido: string;
+  documentoIdentidad: string;
+  telefono: string;
+  imagenPerfil: string | null;
+  programaId: number | null;
+  programa: string | null;
+}
+
+/** CrearUsuarioDto */
+export interface CrearUsuarioRequest {
+  nombre: string;
+  apellido: string;
+  documentoIdentidad: string;
+  telefono: string;
+  email: string;
+  contrasena: string;
+  programaId: number;
+  recaptchaToken: string;
+}
+
+/** ErrorResponse: forma de algunos errores de validación del backend. */
+export interface ErrorResponse {
+  type: string;
+  message: string;
+}
+
+/** GET /api/programas */
+export interface ProgramaCatalogo {
+  id: number;
+  nombre: string;
+  cantidadMaterias: number;
+  cantidadCreditos: number;
 };
